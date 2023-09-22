@@ -1,4 +1,5 @@
 # Fig pre block. Keep at the top of this file.
+source ~/.config/zsh/.aliases
 [[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 # Fig pre block. Keep at the top of this file.
 #zmodload zsh/zprof # top of your .zshrc file
@@ -22,17 +23,6 @@ function add-alias() {
   alias $1="$2"
   echo "alias $1='$2'" >> ~/.zshrc
 }
-alias zshedit='vim ~/.zshrc'
-alias amend='git commit --amend'
-alias pull='git pull'
-alias ls="exa --icons --grid --classify --colour=auto --sort=type --group-directories-first --header --modified --created --git --binary --group"
-alias la="ls -a"
-alias ll="ls -al"
-alias fe='cd ~/src/hiring/resume-ranker-frontend/mysite'
-alias rb='cd ~/src/hiring'
-alias size="du -hs ./* | sort -hr"
-alias dockerlogin="aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 438467004847.dkr.ecr.us-west-2.amazonaws.com"
-alias reload='source ~/.zshrc'
 
 
 # export OPENAI_API_KEY=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
