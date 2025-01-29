@@ -1,0 +1,33 @@
+[user]
+	email = felix.sargent@gmail.com
+	name = Felix Sargent
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICsdLTaI/nCv9jwRIVoVe7TAw0k7Pn9XTOHsrFnoVEkX
+[includeIf "gitdir:~/src/snyk/"]
+  path = ~/.config/git/config-acme
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[commit]
+	gpgsign = true
+[push]
+	autoSetupRemote = true
+[pull]
+	rebase = true
+
+[color "branch"]
+current = yellow reverse
+local = yellow
+remote = green
+[color "diff"]
+frag = magenta bold
+meta = yellow bold
+new = green bold
+old = red bold
+whitespace = red reverse
+[color "status"]
+added = yellow
+changed = green
+untracked = cyan
+[help]
+	autoCorrect = immediate
