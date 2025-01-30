@@ -4,8 +4,10 @@ source ~/.config/zsh/.aliases
 #zmodload zsh/zprof # top of your .zshrc file
 #set -x
 
-# export ZSH="$HOME/.oh-my-zsh"
-# source $ZSH/oh-my-zsh.sh
+export ZSH="$HOME/.oh-my-zsh"
+source $ZSH/oh-my-zsh.sh
+plugins=(git python you-should-use)
+
 export PATH="/opt/homebrew/bin/:$PATH"
 export TRUNK_TELEMETRY=OFF
 
@@ -34,3 +36,23 @@ if type brew &>/dev/null; then
     autoload -Uz compinit
     compinit
 fi
+
+
+# Less
+export LESS=
+"\
+--chop-long-lines \
+--HILITE-UNREAD \
+--ignore-case \
+--incsearch \
+--jump-target=4 \
+--LONG-PROMPT \
+--no-init \
+--quit-if-one-screen \
+--RAW-CONTROL-CHARS \
+--status-line \
+--use-color \
+--window=-4"
+
+
+export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
