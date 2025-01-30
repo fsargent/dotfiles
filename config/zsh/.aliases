@@ -1,3 +1,9 @@
+function add-alias() {
+  alias $1="$2"
+  echo "alias $1='$2'" >> ~/.config/zsh/.zshrc
+}
+
+
 alias amend='git commit --amend'
 alias pull='git pull'
 alias ls="eza --icons --grid --classify --colour=auto --sort=type --group-directories-first --header --modified --created --git --binary --group"
