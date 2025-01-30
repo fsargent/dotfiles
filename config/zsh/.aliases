@@ -1,4 +1,3 @@
-alias zshedit='vim ~/.zshrc'
 alias amend='git commit --amend'
 alias pull='git pull'
 alias ls="eza --icons --grid --classify --colour=auto --sort=type --group-directories-first --header --modified --created --git --binary --group"
@@ -6,7 +5,11 @@ alias la="ls -a"
 alias ll="ls -al"
 alias rb='cd ~/src/rb'
 alias size="du -hs ./* | sort -hr"
-alias dockerlogin="aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 438467004847.dkr.ecr.us-west-2.amazonaws.com"
-alias reload='source ~/.zshrc'
+alias zshedit='vim ~/.config/zsh/.zshrc'
+alias reload='source ~/.config/zsh/.zshrc'
 alias gcm='git checkout main'
 alias grhh='git reset --hard HEAD'
+alias gs='git status'
+alias grs='git restore'
+alias grss='git restore --source'
+alias grst='git restore --staged'
