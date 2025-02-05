@@ -34,7 +34,7 @@ export LESS="\
 --no-init \
 --quit-if-one-screen \
 --RAW-CONTROL-CHARS \
---status-line \
+--status-column \
 --use-color \
 --window=-4"
 
