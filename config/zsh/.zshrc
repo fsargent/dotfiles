@@ -41,7 +41,8 @@ export LESS="\
 export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
 
 # zsh
-export ZSH="$HOME/.oh-my-zsh"
+export ZSH="$HOME/.config/oh-my-zsh"
+export ZSH_CUSTOM="$ZSH/custom"
 source $ZSH/oh-my-zsh.sh
 plugins=(
   git # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/git/README.md
@@ -50,3 +51,7 @@ plugins=(
 )
 
 export YSU_MESSAGE_FORMAT="$(tput setaf 1)Hey! I found this %alias_type for %command: %alias$(tput sgr0)"
+source /Users/fsargent/.config/op/plugins.sh
+export XDG_CONFIG_HOME="$HOME/.config/"
+
+eval "$(jump shell)"

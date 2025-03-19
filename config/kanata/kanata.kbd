@@ -1,0 +1,89 @@
+;; Caps to escape/control configuration for Kanata
+
+;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
+(defsrc
+	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
+	IntlBackslash	1	2	3	4	5		6	7	8	9	0		-	=	bspc
+	tab			q	w	e	r	t		y	u	i	o	p		[	]	ret
+	caps			a	s	d	f	g		h	j	k	l	;		'	\
+	lsft	`		z	x	c	v	b		n	m	,	.	/		rsft
+	lctl			lalt lmet			spc			rmet ralt
+)
+
+(defvar
+	;; Note: consider using different time values for your different fingers.
+	;; For example, your pinkies might be slower to release keys and index
+	;; fingers faster.
+	tap-time 200
+	hold-time 200
+	hold-time-slow 300
+)
+
+;; Definine two aliases, one for esc/control to other for function key
+(defalias
+	meh (multi ctl alt sft)
+	l_spc (tap-hold $tap-time $hold-time spc (layer-while-held space))
+	emeh (tap-hold $tap-time $hold-time esc @meh)
+	escctrl (tap-hold 100 100 esc lctl)
+	a (tap-hold $tap-time $hold-time a lctl)
+	s (tap-hold $tap-time $hold-time s lalt)
+	d (tap-hold $tap-time $hold-time d lmet)
+	f (tap-hold $tap-time $hold-time f lsft)
+
+	j (tap-hold $tap-time $hold-time j rsft)
+	k (tap-hold $tap-time $hold-time k rmet )
+	l (tap-hold $tap-time $hold-time l ralt)
+	; (tap-hold $tap-time $hold-time ; rctl)
+
+	c_asdf_a (chord asdf a)
+	c_asdf_s (chord asdf s)
+	c_asdf_d (chord asdf d)
+	c_asdf_f (chord asdf f)
+
+	c_right_j (chord right j)
+	c_right_k (chord right k)
+	c_right_l (chord right l)
+	c_right_; (chord right ;)
+)
+
+;; chords / combos
+
+(defchords asdf 75
+ (a	) @a
+ ( s	) @s
+ (   d	) @d
+ (    f ) @f
+ (  d f ) tab
+ ( s d f ) `
+ (a s d f ) esc
+)
+
+(defchords right 75
+(j			) @j
+( k ) @k
+(  l ) @l
+( 	; ) @;
+(j k) bspc
+(j k l ) \
+(j k l ;) ret
+)
+
+(deflayer base
+	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
+	`	1	2	3	4	5		6	7	8	9	0		-	=	bspc
+	tab	q	w	e	r	t		y	u	i	o	p		[	]	ret
+	caps	@c_asdf_a	@c_asdf_s	@c_asdf_d	@c_asdf_f	g		h	@c_right_j @c_right_k @c_right_l @c_right_;		'	\
+	lsft	`	z	x	c	v	b		n	m	,	.	/		rsft
+	lctl	lalt lmet			@l_spc			rmet ralt
+)
+
+(deflayer space
+	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
+	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
+	tab		q	w	up	r	t		y	u	i	o	p	[	]	ret
+	caps		a 	left	down	right	g 		h	@j	@k	@l	@;	'	\
+	lsft	`	z	x	c	v	b		n	m	,	.	/	rsft
+	lctl			lalt lmet			spc			rmet ralt
+)
+
+
