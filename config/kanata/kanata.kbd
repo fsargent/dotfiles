@@ -1,5 +1,8 @@
 ;; Caps to escape/control configuration for Kanata
 
+
+(defcfg process-unmapped-keys no)
+
 ;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
 (defsrc
 	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
@@ -25,6 +28,15 @@
 	l_spc (tap-hold $tap-time $hold-time spc (layer-while-held space))
 	emeh (tap-hold $tap-time $hold-time esc @meh)
 	escctrl (tap-hold 100 100 esc lctl)
+	l_num (layer-toggle num)
+
+
+	mc C-up ;; Mission Control
+	sls M-spc ;; Spotlight Search
+	dtn S-C-A-M-f5 ;; Dictation
+	dnd S-C-A-M-f6 ;; Do Not Disturb
+	lp S-C-A-M-l ;; Launchpad
+
 	a (tap-hold $tap-time $hold-time a lctl)
 	s (tap-hold $tap-time $hold-time s lalt)
 	d (tap-hold $tap-time $hold-time d lmet)
@@ -34,6 +46,7 @@
 	k (tap-hold $tap-time $hold-time k rmet )
 	l (tap-hold $tap-time $hold-time l ralt)
 	; (tap-hold $tap-time $hold-time ; rctl)
+	' (tap-hold $tap-time $hold-time ' @l_num)
 
 	c_asdf_a (chord asdf a)
 	c_asdf_s (chord asdf s)
@@ -44,16 +57,22 @@
 	c_right_k (chord right k)
 	c_right_l (chord right l)
 	c_right_; (chord right ;)
+
+	c_zxcv_z (chord zxcv z)
+	c_zxcv_x (chord zxcv x)
+	c_zxcv_c (chord zxcv c)
+	c_zxcv_v (chord zxcv v)
+
 )
 
 ;; chords / combos
 
 (defchords asdf 75
  (a	) @a
- ( s	) @s
+ (  s	) @s
  (   d	) @d
- (    f ) @f
- (  d f ) tab
+ (     f ) @f
+ (   d f ) tab
  ( s d f ) `
  (a s d f ) esc
 )
@@ -68,22 +87,41 @@
 (j k l ;) ret
 )
 
+
+(defchords zxcv 75
+(z	) z
+( x 	) x
+(  c 	) c
+(    v	) v
+(z x   ) M-x
+(x c ) M-c
+(c v) M-v
+)
+
 (deflayer base
-	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
+	esc	🔅	🔆	@mc	@sls	@dtn	@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
 	`	1	2	3	4	5		6	7	8	9	0		-	=	bspc
 	tab	q	w	e	r	t		y	u	i	o	p		[	]	ret
-	caps	@c_asdf_a	@c_asdf_s	@c_asdf_d	@c_asdf_f	g		h	@c_right_j @c_right_k @c_right_l @c_right_;		'	\
-	lsft	`	z	x	c	v	b		n	m	,	.	/		rsft
+	@emeh	@c_asdf_a	@c_asdf_s	@c_asdf_d	@c_asdf_f	g		h	@c_right_j @c_right_k @c_right_l @c_right_;		@'	\
+	lsft	`	@c_zxcv_z @c_zxcv_x @c_zxcv_c @c_zxcv_v	b		n	m	,	.	/		rsft
 	lctl	lalt lmet			@l_spc			rmet ralt
 )
 
 (deflayer space
 	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
-	tab		q	w	up	r	t		y	u	i	o	p	[	]	ret
-	caps		a 	left	down	right	g 		h	@j	@k	@l	@;	'	\
-	lsft	`	z	x	c	v	b		n	m	,	.	/	rsft
+	tab		S-9	A-left	up	A-right	S-0		y	u	S-9	S-0	p	[	]	ret
+	caps		[	left	down	right	] 		h	@j	@k	@l	@;	'	\
+	lsft	`	{	S-,	c	S-.	}		n	m	[	]	/	rsft
 	lctl			lalt lmet			spc			rmet ralt
 )
 
+(deflayer num
+	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
+	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
+	tab		S-1	S-2	S-3	S-4	S-5		S-6	S-7	S-8	S-9	S-0	[	]	ret
+	caps		1	2	3	4	5		6	7	8	9	0	'	\
+	lsft	`	[	]	S-9 	S-0	b		n	m	,	.	/	rsft
+	lctl			lalt lmet			spc			rmet ralt
+)
 
