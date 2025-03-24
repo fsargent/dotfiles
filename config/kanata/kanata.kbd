@@ -30,7 +30,6 @@
 	escctrl (tap-hold 100 100 esc lctl)
 	l_num (layer-toggle num)
 
-
 	mc C-up ;; Mission Control
 	sls M-spc ;; Spotlight Search
 	dtn S-C-A-M-f5 ;; Dictation
@@ -68,43 +67,44 @@
 ;; chords / combos
 
 (defchords asdf 75
- (a	) @a
- (  s	) @s
- (   d	) @d
- (     f ) @f
- (   d f ) tab
- ( s d f ) `
- (a s d f ) esc
+	(a	) @a
+	(  s	) @s
+	(   d	) @d
+	(     f ) @f
+	(   d f ) tab
+	( s d f ) `
+	(a s d f ) esc
 )
 
 (defchords right 75
-(j			) @j
-( k ) @k
-(  l ) @l
-( 	; ) @;
-(j k) bspc
-(j k l ) \
-(j k l ;) ret
+	(j      ) @j
+	(  k    ) @k
+	(    l  ) @l
+	(      ;) @;
+	(j k    ) bspc
+	(j k l  ) \
+	(j k l ;) ret
+	(j     ;) caps
 )
 
 
 (defchords zxcv 75
-(z	) z
-( x 	) x
-(  c 	) c
-(    v	) v
-(z x   ) M-x
-(x c ) M-c
-(c v) M-v
+	(z	) z
+	( x 	) x
+	(  c 	) c
+	(    v	) v
+	(z x	) M-x
+	(x c  	) M-c
+	(c v	) M-v
 )
 
 (deflayer base
-	esc	🔅	🔆	@mc	@sls	@dtn	@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
-	`	1	2	3	4	5		6	7	8	9	0		-	=	bspc
-	tab	q	w	e	r	t		y	u	i	o	p		[	]	ret
+	XX	🔅	🔆	@mc	@sls	@dtn	@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
+	XX	1	2	3	4	5		6	7	8	9	0		-	=	XX
+	XX	q	w	e	r	t		y	u	i	o	p		[	]	XX
 	@emeh	@c_asdf_a	@c_asdf_s	@c_asdf_d	@c_asdf_f	g		h	@c_right_j @c_right_k @c_right_l @c_right_;		@'	\
 	lsft	`	@c_zxcv_z @c_zxcv_x @c_zxcv_c @c_zxcv_v	b		n	m	,	.	/		rsft
-	lctl	lalt lmet			@l_spc			rmet ralt
+	lctl	XX XX			@l_spc			rmet ralt
 )
 
 (deflayer space
