@@ -47,20 +47,32 @@
 	; (tap-hold $tap-time $hold-time ; rctl)
 	' (tap-hold $tap-time $hold-time ' @l_num)
 
-	c_asdf_a (chord asdf a)
-	c_asdf_s (chord asdf s)
-	c_asdf_d (chord asdf d)
-	c_asdf_f (chord asdf f)
+	c_a (chord asdf a)
+	c_s (chord asdf s)
+	c_d (chord asdf d)
+	c_f (chord asdf f)
 
-	c_right_j (chord right j)
-	c_right_k (chord right k)
-	c_right_l (chord right l)
-	c_right_; (chord right ;)
+	c_j (chord right j)
+	c_k (chord right k)
+	c_l (chord right l)
+	c_; (chord right ;)
 
-	c_zxcv_z (chord zxcv z)
-	c_zxcv_x (chord zxcv x)
-	c_zxcv_c (chord zxcv c)
-	c_zxcv_v (chord zxcv v)
+	c_z (chord zxcv z)
+	c_x (chord zxcv x)
+	c_c (chord zxcv c)
+	c_v (chord zxcv v)
+
+	c_q (chord qwer q)
+	c_w (chord qwer w)
+	c_e (chord qwer e)
+	c_r (chord qwer r)
+	c_t (chord qwer t)
+
+	c_n (chord nm n)
+	c_m (chord nm m)
+	c_, (chord nm ,)
+	c_. (chord nm .)
+	c_/ (chord nm /)
 
 )
 
@@ -82,9 +94,9 @@
 	(    l  ) @l
 	(      ;) @;
 	(j k    ) bspc
-	(j k l  ) \
+	(j k l  ) ret
 	(j k l ;) ret
-	(j     ;) caps
+	;;(j     ;) caps
 )
 
 
@@ -93,18 +105,40 @@
 	( x 	) x
 	(  c 	) c
 	(    v	) v
+
 	(z x	) M-x
 	(x c  	) M-c
 	(c v	) M-v
 )
 
+(defchords qwer 75
+	(q	) q
+	( w	) w
+	(  e 	) e
+	(   r	) r
+	(     t ) t
+	(    r t) `
+	( w e r ) A-bspc
+)
+
+(defchords nm 75
+	(n	) n
+	( m	) m
+	(  , 	) ,
+	(   .	) .
+	( /	) /
+	( , . ) -
+	( . / ) =
+)
+
+
 (deflayer base
-	XX	🔅	🔆	@mc	@sls	@dtn	@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
-	XX	1	2	3	4	5		6	7	8	9	0		-	=	XX
-	XX	q	w	e	r	t		y	u	i	o	p		[	]	XX
-	@emeh	@c_asdf_a	@c_asdf_s	@c_asdf_d	@c_asdf_f	g		h	@c_right_j @c_right_k @c_right_l @c_right_;		@'	\
-	lsft	`	@c_zxcv_z @c_zxcv_x @c_zxcv_c @c_zxcv_v	b		n	m	,	.	/		rsft
-	lctl	XX XX			@l_spc			rmet ralt
+	esc		🔅	🔆	@mc	@sls	@dtn		@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
+	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
+	XX		@c_q	@c_w	@c_e	@c_r	@c_t		y	u	i	o	p	[	]	ret
+	@emeh		@c_a	@c_s	@c_d	@c_f	g		h	@c_j @c_k @c_l @c_;	@'	\
+	lsft	`	@c_z	@c_x 	@c_c 	@c_v	b		@c_n	@c_m	@c_,	@c_.	@c_/		rsft
+	lctl		lalt	lmet			@l_spc			rmet ralt
 )
 
 (deflayer space
@@ -112,7 +146,7 @@
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
 	tab		S-9	A-left	up	A-right	S-0		y	u	S-9	S-0	p	[	]	ret
 	caps		[	left	down	right	] 		h	@j	@k	@l	@;	'	\
-	lsft	`	{	S-,	c	S-.	}		n	m	[	]	/	rsft
+	lsft	`	{	S-tab	ret	tab	}		n	m	[	]	/	lrld
 	lctl			lalt lmet			spc			rmet ralt
 )
 
@@ -121,7 +155,6 @@
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
 	tab		S-1	S-2	S-3	S-4	S-5		S-6	S-7	S-8	S-9	S-0	[	]	ret
 	caps		1	2	3	4	5		6	7	8	9	0	'	\
-	lsft	`	[	]	S-9 	S-0	b		n	m	,	.	/	rsft
-	lctl			lalt lmet			spc			rmet ralt
+	lsft	`	[	]	S-9 	S-0	b		S--	-	S-=	=	/	rsft
+	lctl			lalt lmet			-			rmet ralt
 )
-

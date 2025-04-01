@@ -46,3 +46,7 @@ colorMoved = default
 diffFilter = delta --color-only
 [merge]
 conflictStyle = zdiff3
+[rebase]
+	updateRefs = true
+[alias]
+	ci = !git checkout $(git branch -a | fzf | xargs)

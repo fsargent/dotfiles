@@ -14,6 +14,9 @@ mkdir -p ~/.config
 # Link kanata config if it doesn't exist
 [ ! -e ~/.config/kanata ] && ln -s "${PWD}/config/kanata" ~/.config/kanata
 
+# Link .zshrc if it doesn't exist
+[ ! -e ~/.zshrc ] && ln -s "${PWD}/config/zsh/.zshrc" ~/.zshrc
+
 # Ensure ~/.zshenv contains the correct content
 ZSHENV_CONTENT='export ZDOTDIR=~/.config/zsh'
 ZSHENV_FILE="${HOME}/.zshenv"

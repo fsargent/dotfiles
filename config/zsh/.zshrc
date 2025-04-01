@@ -55,3 +55,5 @@ source /Users/fsargent/.config/op/plugins.sh
 export XDG_CONFIG_HOME="$HOME/.config/"
 
 eval "$(jump shell)"
+
+export PATH="/opt/homebrew/sbin:$PATH"
