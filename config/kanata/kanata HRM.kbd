@@ -1,7 +1,14 @@
 ;; Caps to escape/control configuration for Kanata
 
 
-(defcfg process-unmapped-keys no)
+(defcfg process-unmapped-keys yes)
+
+(deftemplate charmod (char mod)
+  (switch
+    ((key-timing 3 less-than 250)) $char break
+    () (tap-hold-release-timeout 200 500 $char $mod $char) break
+  )
+)
 
 ;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
 (defsrc
@@ -45,6 +52,7 @@
 	k (tap-hold $tap-time $hold-time k rmet )
 	l (tap-hold $tap-time $hold-time l ralt)
 	; (tap-hold $tap-time $hold-time ; rctl)
+
 	' (tap-hold $tap-time $hold-time ' @l_num)
 
 	c_a (chord asdf a)
@@ -73,30 +81,29 @@
 	c_, (chord nm ,)
 	c_. (chord nm .)
 	c_/ (chord nm /)
-
 )
 
 ;; chords / combos
 
 (defchords asdf 75
-	(a	) @a
-	(  s	) @s
-	(   d	) @d
-	(     f ) @f
+	(a	) a
+	(  s	) s
+	(   d	) d
+	(     f ) f
 	(   d f ) tab
 	( s d f ) `
 	(a s d f ) esc
 )
 
 (defchords right 75
-	(j      ) @j
-	(  k    ) @k
-	(    l  ) @l
-	(      ;) @;
+	(j      ) j
+	(  k    ) k
+	(    l  ) l
+	(      ;) ;
 	(j k    ) bspc
 	(j k l  ) ret
 	(j k l ;) ret
-	;;(j     ;) caps
+	;;(j   ;) caps
 )
 
 
@@ -131,12 +138,41 @@
 	( . / ) =
 )
 
+(deflayermap (main)
+  IntlBackslash `
+  q @c_q
+  w @c_w
+  e @c_e
+  r @c_r
+  t @c_t
+  a (t! charmod @c_a lctl)
+  s (t! charmod @c_s lalt)
+  d (t! charmod @c_d lmet)
+  f (t! charmod @c_f lsft)
+  j (t! charmod @c_j rsft)
+  k (t! charmod @c_k rmet)
+  l (t! charmod @c_l ralt)
+  ; (t! charmod @c_; rctl)
+  ' @'
+
+  z @c_z
+  x	@c_x
+  c 	@c_c
+  v 	@c_v
+  n @c_n
+  m @c_m
+  , @c_,
+  . @c_.
+  / @c_/
+  caps @emeh
+  spc @l_spc
+)
 
 (deflayer base
 	esc		🔅	🔆	@mc	@sls	@dtn		@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
 	XX		@c_q	@c_w	@c_e	@c_r	@c_t		y	u	i	o	p	[	]	ret
-	@emeh		@c_a	@c_s	@c_d	@c_f	g		h	@c_j @c_k @c_l @c_;	@'	\
+	@emeh		@c_a	@c_s	@c_d	@c_f	g		h	@c_j 	@c_k 	@c_l 	@c_;	@'	\
 	lsft	`	@c_z	@c_x 	@c_c 	@c_v	b		@c_n	@c_m	@c_,	@c_.	@c_/		rsft
 	lctl		lalt	lmet			@l_spc			rmet ralt
 )
@@ -145,7 +181,7 @@
 	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
 	tab		S-9	A-left	up	A-right	S-0		y	u	S-9	S-0	p	[	]	ret
-	caps		s-tab	left	down	right	tab 		A-bspc	@j	@k	@l	@;	'	\
+	caps		S-tab	left	down	right	tab 		A-bspc	@c_j 	@c_k 	@c_l 	@c_;	'	\
 	lsft	`	{	S-tab	ret	tab	}		n	m	[	]	/	lrld
 	lctl			lalt lmet			spc			rmet ralt
 )

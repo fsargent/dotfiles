@@ -57,3 +57,11 @@ export XDG_CONFIG_HOME="$HOME/.config/"
 eval "$(jump shell)"
 
 export PATH="/opt/homebrew/sbin:$PATH"
+
+# pnpm
+export PNPM_HOME="/Users/fsargent/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
