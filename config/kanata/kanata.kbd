@@ -81,11 +81,12 @@
 (defchords asdf 75
 	(a	) @a
 	(  s	) @s
-	(   d	) @d
-	(     f ) @f
-	(   d f ) tab
-	( s d f ) `
-	(a s d f ) esc
+	(    d	) @d
+	(      f) @f
+	(  s d  ) `
+	(    d f) tab
+	(  s d f) `
+	(a s d f) esc
 )
 
 (defchords right 75
@@ -94,9 +95,11 @@
 	(    l  ) @l
 	(      ;) @;
 	(j k    ) bspc
+	(  k l  ) A-bspc
 	(j k l  ) ret
 	(j k l ;) ret
-	;;(j     ;) caps
+	(j     ;) caps
+	(    l ;) ret
 )
 
 
@@ -117,8 +120,6 @@
 	(  e 	) e
 	(   r	) r
 	(     t ) t
-	(    r t) `
-	( w e r ) A-bspc
 )
 
 (defchords nm 75
@@ -144,8 +145,8 @@
 (deflayer space
 	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
-	tab		S-9	A-left	up	A-right	S-0		y	u	S-9	S-0	p	[	]	ret
-	caps		s-tab	left	down	right	tab 		A-bspc	@j	@k	@l	@;	'	\
+	tab		S-9	A-left	up	A-right	S-0		y	u	-	=	p	[	]	ret
+	caps		S-tab	left	down	right	tab 		A-bspc	@j	@k	@l	@;	'	\
 	lsft	`	{	S-tab	ret	tab	}		n	m	[	]	/	lrld
 	lctl			lalt lmet			spc			rmet ralt
 )
