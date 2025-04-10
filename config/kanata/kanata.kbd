@@ -22,6 +22,8 @@
 	hold-time-slow 300
 )
 
+
+
 ;; Definine two aliases, one for esc/control to other for function key
 (defalias
 	meh (multi ctl alt sft)
@@ -37,12 +39,12 @@
 	lp S-C-A-M-l ;; Launchpad
 
 	a (tap-hold $tap-time $hold-time a lctl)
-	s (tap-hold $tap-time $hold-time s lalt)
+	s (tap-hold 300 $hold-time s lalt)
 	d (tap-hold $tap-time $hold-time d lmet)
-	f (tap-hold $tap-time $hold-time f lsft)
+	f (tap-hold 100 $hold-time f lsft)
 
-	j (tap-hold $tap-time $hold-time j rsft)
-	k (tap-hold $tap-time $hold-time k rmet )
+	j (tap-hold 100 $hold-time j rsft)
+	k (tap-hold $tap-time $hold-time k rmet)
 	l (tap-hold $tap-time $hold-time l ralt)
 	; (tap-hold $tap-time $hold-time ; rctl)
 	' (tap-hold $tap-time $hold-time ' @l_num)
@@ -85,8 +87,9 @@
 	(      f) @f
 	(  s d  ) `
 	(    d f) tab
-	(  s d f) `
+	(  s d f) esc
 	(a s d f) esc
+	(a     f) esc
 )
 
 (defchords right 75

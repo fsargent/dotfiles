@@ -20,7 +20,7 @@ git_main_branch() {
 if type brew &>/dev/null; then
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
     autoload -Uz compinit
-    compinit
+    # compinit # Oh My Zsh handles this
 fi
 
 # Less
@@ -43,12 +43,11 @@ export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
 # zsh
 export ZSH="$HOME/.config/oh-my-zsh"
 export ZSH_CUSTOM="$ZSH/custom"
-source $ZSH/oh-my-zsh.sh
 plugins=(
   git # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/git/README.md
-  python
   you-should-use # https://github.com/MichaelAquilina/zsh-you-should-use
 )
+source $ZSH/oh-my-zsh.sh
 
 export YSU_MESSAGE_FORMAT="$(tput setaf 1)Hey! I found this %alias_type for %command: %alias$(tput sgr0)"
 source /Users/fsargent/.config/op/plugins.sh
