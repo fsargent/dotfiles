@@ -85,7 +85,7 @@
 
 ;; chords / combos
 
-(defchords asdf 75
+(defchords asdf 50
 	(a	) a
 	(  s	) s
 	(   d	) d
@@ -95,7 +95,7 @@
 	(a s d f ) esc
 )
 
-(defchords right 75
+(defchords right 50
 	(j      ) j
 	(  k    ) k
 	(    l  ) l
@@ -107,7 +107,7 @@
 )
 
 
-(defchords zxcv 75
+(defchords zxcv 50
 	(z	) z
 	( x 	) x
 	(  c 	) c
@@ -118,7 +118,7 @@
 	(c v	) M-v
 )
 
-(defchords qwer 75
+(defchords qwer 50
 	(q	) q
 	( w	) w
 	(  e 	) e
@@ -128,7 +128,7 @@
 	( w e r ) A-bspc
 )
 
-(defchords nm 75
+(defchords nm 50
 	(n	) n
 	( m	) m
 	(  , 	) ,

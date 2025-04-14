@@ -1,7 +1,8 @@
 ;; Caps to escape/control configuration for Kanata
 
 
-(defcfg process-unmapped-keys no)
+(defcfg process-unmapped-keys no concurrent-tap-hold yes)
+
 
 ;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
 (defsrc
@@ -38,26 +39,16 @@
 	dnd S-C-A-M-f6 ;; Do Not Disturb
 	lp S-C-A-M-l ;; Launchpad
 
-	a (tap-hold $tap-time $hold-time a lctl)
-	s (tap-hold 300 $hold-time s lalt)
+	a (tap-hold $tap-time $hold-time a lalt)
+	s (tap-hold 300 $hold-time s lctl)
 	d (tap-hold $tap-time $hold-time d lmet)
 	f (tap-hold 100 $hold-time f lsft)
 
-	j (tap-hold 100 $hold-time j rsft)
+	j (tap-hold $tap-time $hold-time j rsft)
 	k (tap-hold $tap-time $hold-time k rmet)
-	l (tap-hold $tap-time $hold-time l ralt)
-	; (tap-hold $tap-time $hold-time ; rctl)
+	l (tap-hold $tap-time $hold-time l rctl)
+	; (tap-hold $tap-time $hold-time ; ralt	)
 	' (tap-hold $tap-time $hold-time ' @l_num)
-
-	c_a (chord asdf a)
-	c_s (chord asdf s)
-	c_d (chord asdf d)
-	c_f (chord asdf f)
-
-	c_j (chord right j)
-	c_k (chord right k)
-	c_l (chord right l)
-	c_; (chord right ;)
 
 	c_z (chord zxcv z)
 	c_x (chord zxcv x)
@@ -80,33 +71,28 @@
 
 ;; chords / combos
 
-(defchords asdf 75
-	(a	) @a
-	(  s	) @s
-	(    d	) @d
-	(      f) @f
-	(  s d  ) `
-	(    d f) tab
-	(  s d f) esc
-	(a s d f) esc
-	(a     f) esc
-)
+(defchordsv2
+	(a s	)	S-tab 50 first-release ()
+	(a s d  ) 	esc 50 first-release ()
+	(  s d  )	` 50 all-released  ()
+	(    d f) 	tab 50 all-released  ()
+	(  s d f) 	esc 50 all-released  ()
+	(a s d f) 	esc 50 all-released  ()
 
-(defchords right 75
-	(j      ) @j
-	(  k    ) @k
-	(    l  ) @l
-	(      ;) @;
-	(j k    ) bspc
-	(  k l  ) A-bspc
-	(j k l  ) ret
-	(j k l ;) ret
-	(j     ;) caps
-	(    l ;) ret
+
+
+	(j k    ) bspc 50 first-release ()
+	(j k l  ) A-bspc 50 first-release ()
+	(    l ;) del 50 first-release ()
+
+;;	(  i o	) ret 25 first-release ()
+	(  k l  ) ret 50 first-release ()
+	(j k l ;) ret 50 first-release ()
+	(j     ;) caps 50 first-release ()
 )
 
 
-(defchords zxcv 75
+(defchords zxcv 50
 	(z	) z
 	( x 	) x
 	(  c 	) c
@@ -117,7 +103,7 @@
 	(c v	) M-v
 )
 
-(defchords qwer 75
+(defchords qwer 50
 	(q	) q
 	( w	) w
 	(  e 	) e
@@ -125,7 +111,7 @@
 	(     t ) t
 )
 
-(defchords nm 75
+(defchords nm 50
 	(n	) n
 	( m	) m
 	(  , 	) ,
@@ -140,7 +126,7 @@
 	esc		🔅	🔆	@mc	@sls	@dtn		@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
 	XX		@c_q	@c_w	@c_e	@c_r	@c_t		y	u	i	o	p	[	]	ret
-	@emeh		@c_a	@c_s	@c_d	@c_f	g		h	@c_j @c_k @c_l @c_;	@'	\
+	@emeh		@a 	@s 	@d 	@f	g		h	@j	@k		@l	@;	@'	\
 	lsft	`	@c_z	@c_x 	@c_c 	@c_v	b		@c_n	@c_m	@c_,	@c_.	@c_/		rsft
 	lctl		lalt	lmet			@l_spc			rmet ralt
 )
