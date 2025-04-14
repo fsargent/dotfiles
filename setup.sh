@@ -14,6 +14,9 @@ mkdir -p ~/.config
 # Link kanata config if it doesn't exist
 [ ! -e ~/.config/kanata ] && ln -s "${PWD}/config/kanata" ~/.config/kanata
 
+# Link nvim config if it doesn't exist
+[ ! -e ~/.config/nvim ] && ln -s "${PWD}/config/nvim" ~/.config/nvim
+
 # Link .zshrc if it doesn't exist
 [ ! -e ~/.zshrc ] && ln -s "${PWD}/config/zsh/.zshrc" ~/.zshrc
 

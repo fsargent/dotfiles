@@ -50,26 +50,14 @@
 	; (tap-hold $tap-time $hold-time ; ralt	)
 	' (tap-hold $tap-time $hold-time ' @l_num)
 
-	c_z (chord zxcv z)
-	c_x (chord zxcv x)
-	c_c (chord zxcv c)
-	c_v (chord zxcv v)
-
-	c_q (chord qwer q)
-	c_w (chord qwer w)
-	c_e (chord qwer e)
-	c_r (chord qwer r)
-	c_t (chord qwer t)
-
-	c_n (chord nm n)
-	c_m (chord nm m)
-	c_, (chord nm ,)
-	c_. (chord nm .)
-	c_/ (chord nm /)
-
 )
 
 ;; chords / combos
+
+;; tab cmd - switch applications
+;; ` cmd - switch windows
+;; tab control - switch tab
+;; ` control - open terminal
 
 (defchordsv2
 	(a s	)	S-tab 50 first-release ()
@@ -79,8 +67,6 @@
 	(  s d f) 	esc 50 all-released  ()
 	(a s d f) 	esc 50 all-released  ()
 
-
-
 	(j k    ) bspc 50 first-release ()
 	(j k l  ) A-bspc 50 first-release ()
 	(    l ;) del 50 first-release ()
@@ -89,45 +75,22 @@
 	(  k l  ) ret 50 first-release ()
 	(j k l ;) ret 50 first-release ()
 	(j     ;) caps 50 first-release ()
-)
 
+	(z x	) M-x 50 first-release ()
+	(x c  	) M-c 50 first-release ()
+	(c v	) M-v 50 first-release ()
 
-(defchords zxcv 50
-	(z	) z
-	( x 	) x
-	(  c 	) c
-	(    v	) v
-
-	(z x	) M-x
-	(x c  	) M-c
-	(c v	) M-v
-)
-
-(defchords qwer 50
-	(q	) q
-	( w	) w
-	(  e 	) e
-	(   r	) r
-	(     t ) t
-)
-
-(defchords nm 50
-	(n	) n
-	( m	) m
-	(  , 	) ,
-	(   .	) .
-	( /	) /
-	( , . ) -
-	( . / ) =
+	( , . ) - 50 first-release ()
+	( . / ) = 50 first-release ()
 )
 
 
 (deflayer base
 	esc		🔅	🔆	@mc	@sls	@dtn		@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
 	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
-	XX		@c_q	@c_w	@c_e	@c_r	@c_t		y	u	i	o	p	[	]	ret
+	XX		q	w	e	r	t		y	u	i	o	p	[	]	ret
 	@emeh		@a 	@s 	@d 	@f	g		h	@j	@k		@l	@;	@'	\
-	lsft	`	@c_z	@c_x 	@c_c 	@c_v	b		@c_n	@c_m	@c_,	@c_.	@c_/		rsft
+	lsft	`	z	x 	c 	v	b		n	m	,	.	/		rsft
 	lctl		lalt	lmet			@l_spc			rmet ralt
 )
 
@@ -148,3 +111,4 @@
 	lsft	`	[	]	S-9 	S-0	b		S--	-	S-=	=	/	rsft
 	lctl			lalt lmet			-			rmet ralt
 )
+
