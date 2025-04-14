@@ -1,43 +1,47 @@
+# ~/.zshrc - Reorganized
+
+# ------------------------------------------------------------------------------
+# Initial Sourcing & Core Zsh Setup
+# ------------------------------------------------------------------------------
+
+# Source custom aliases
 source ~/.config/zsh/.aliases
 
-# history setup
+# History configuration
 HISTFILE=$HOME/.zhistory
 SAVEHIST=1000
 HISTSIZE=999
-setopt share_history 
-setopt hist_expire_dups_first
-setopt hist_ignore_dups
-setopt hist_verify
+setopt share_history        # Share history between sessions
+setopt hist_expire_dups_first # Expire duplicate entries first
+setopt hist_ignore_dups     # Don't record dupes in history
+setopt hist_verify          # Show command with history expansion before running
 
-# completion using arrow keys (based on history)
+# Keybindings for history search
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
+# ------------------------------------------------------------------------------
+# Environment Variables & PATH Setup
+# ------------------------------------------------------------------------------
 
-export PATH="/opt/homebrew/bin/:/Users/fsargent/.local/bin:$PATH"
+# Consolidated PATH exports
+# Order: Homebrew bin -> User local bin -> Homebrew sbin -> PNPM -> Original PATH
+export PATH="/opt/homebrew/bin:/Users/fsargent/.local/bin:/opt/homebrew/sbin:$PATH"
+
+# pnpm PATH setup
+export PNPM_HOME="/Users/fsargent/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Other environment variables
 export TRUNK_TELEMETRY=OFF
+export XDG_CONFIG_HOME="$HOME/.config/"
+export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgreprc" # Use XDG_CONFIG_HOME
+export BAT_THEME=tokyonight_night
 
-zstyle ':prezto:load' pmodule 'environment' 'terminal'  'history' 'homebrew' 'Node'
-
-[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
-eval "$(starship init zsh)"
-eval "$(mise activate zsh)"
-
-git_main_branch() {
-  if [[ -n "$(git branch --list main)" ]]; then
-    echo main
-  else
-    echo master
-  fi
-}
-
-if type brew &>/dev/null; then
-    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-    autoload -Uz compinit
-    # compinit # Oh My Zsh handles this
-fi
-
-# Less
+# Less configuration
 export LESS="\
 --chop-long-lines \
 --HILITE-UNREAD \
@@ -52,85 +56,101 @@ export LESS="\
 --use-color \
 --window=-4"
 
-export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
+# ------------------------------------------------------------------------------
+# Oh My Zsh Framework & Plugins
+# ------------------------------------------------------------------------------
 
-# zsh
-export ZSH="$HOME/.config/oh-my-zsh"
+export ZSH="$HOME/.config/oh-my-zsh" # Assuming OMZ is installed here
 export ZSH_CUSTOM="$ZSH/custom"
+
 plugins=(
-  git # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/git/README.md
-  you-should-use # https://github.com/MichaelAquilina/zsh-you-should-use
+  git            # Git aliases and functions
+  you-should-use # Suggests aliases for commands you type often
 )
+
+# Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
 
+# Plugin configurations
 export YSU_MESSAGE_FORMAT="$(tput setaf 1)Hey! I found this %alias_type for %command: %alias$(tput sgr0)"
-<<<<<<< Updated upstream
-source /Users/fsargent/.config/op/plugins.sh
-export XDG_CONFIG_HOME="$HOME/.config/"
 
-eval "$(jump shell)"
+# Load Zsh completions provided by Homebrew
+if type brew &>/dev/null; then
+    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+    # Initialize completions (Oh My Zsh might handle this, but explicitly is safe)
+    # autoload -Uz compinit && compinit
+fi
+# Note: Oh My Zsh usually runs compinit. If completions break, uncomment the line above.
 
-export PATH="/opt/homebrew/sbin:$PATH"
-
-# pnpm
-export PNPM_HOME="/Users/fsargent/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
+# Source Zsh Autosuggestions (loaded after OMZ to ensure compatibility)
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Source Zsh Syntax Highlighting (loaded after OMZ)
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+# ------------------------------------------------------------------------------
+# Tool Initializations & Configuration
+# ------------------------------------------------------------------------------
 
-# # ---- FZF -----
+# Starship Prompt
+eval "$(starship init zsh)"
 
-# # Set up fzf key bindings and fuzzy completion
+# Mise (formerly rtx)
+eval "$(mise activate zsh)"
+
+# Autojump (Directory jumper based on frequency/recency)
+[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
+
+# Zoxide (Smarter directory changer)
+eval "$(zoxide init zsh)"
+# Note: The `alias cd="z"` will be moved to .aliases
+
+# OP CLI Plugin
+source /Users/fsargent/.config/op/plugins.sh
+
+# TheFuck (Command line corrector)
+eval $(thefuck --alias)
+eval $(thefuck --alias fk) # Optional shorter alias
+
+# FZF (Fuzzy Finder)
+# ------------------
+# Set up fzf key bindings and fuzzy completion
 eval "$(fzf --zsh)"
 
-# # --- setup fzf theme ---
+# FZF Theme
 fg="#CBE0F0"
 bg="#011628"
 bg_highlight="#143652"
 purple="#B388FF"
 blue="#06BCE4"
 cyan="#2CF9ED"
-
 export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
 
-# -- Use fd instead of fzf --
-
+# FZF Use fd for faster searching
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
 
-# Use fd (https://github.com/sharkdp/fd) for listing path candidates.
-# - The first argument to the function ($1) is the base path to start traversal
-# - See the source code (completion.{bash,zsh}) for the details.
+# FZF fd integration for completion
 _fzf_compgen_path() {
   fd --hidden --exclude .git . "$1"
 }
-
-# Use fd to generate the list for directory completion
 _fzf_compgen_dir() {
   fd --type=d --hidden --exclude .git . "$1"
 }
 
-source ~/.config/fzf-git.sh
+# FZF Git integration
+source ~/.config/fzf-git.sh # Assuming this file exists
 
+# FZF Preview settings using eza and bat
 show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
-
 export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 
-# Advanced customization of fzf options via _fzf_comprun function
-# - The first argument to the function is the name of the command.
-# - You should make sure to pass the rest of the arguments to fzf.
+# FZF Advanced customization for specific commands
 _fzf_comprun() {
   local command=$1
   shift
-
   case "$command" in
     cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
     export|unset) fzf --preview "eval 'echo \${}'"         "$@" ;;
@@ -139,23 +159,19 @@ _fzf_comprun() {
   esac
 }
 
-# ----- Bat (better cat) -----
+# ------------------------------------------------------------------------------
+# Custom Functions
+# ------------------------------------------------------------------------------
 
-export BAT_THEME=tokyonight_night
+# Function to determine the default git branch name
+git_main_branch() {
+  if [[ -n "$(git branch --list main)" ]]; then
+    echo main
+  else
+    echo master
+  fi
+}
 
-# ---- Eza (better ls) -----
-
-alias ls="eza --icons=always"
-
-# ---- TheFuck -----
-
-# thefuck alias
-eval $(thefuck --alias)
-eval $(thefuck --alias fk)
-
-# ---- Zoxide (better cd) ----
-eval "$(zoxide init zsh)"
-
-alias cd="z"
-# Created by `pipx` on 2025-02-06 20:50:01
-export PATH="$PATH:/Users/fsargent/.local/bin"
+# ------------------------------------------------------------------------------
+# End of ~/.zshrc
+# ------------------------------------------------------------------------------
