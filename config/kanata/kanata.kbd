@@ -7,22 +7,24 @@
 ;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
 (defsrc
 	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
-	IntlBackslash	1	2	3	4	5		6	7	8	9	0		-	=	bspc
-	tab			q	w	e	r	t		y	u	i	o	p		[	]	ret
-	caps			a	s	d	f	g		h	j	k	l	;		'	\
-	lsft	`		z	x	c	v	b		n	m	,	.	/		rsft
-	lctl			lalt lmet			spc			rmet ralt
+	IntlBackslash	1	2	3	4	5	6	7	8	9	0	-	=	bspc
+	tab		q	w	e	r	t	y	u	i	o	p	[	]	ret
+	caps		a	s	d	f	g	h	j	k	l	;	'	\
+	lsft	`	z	x	c	v	b	n	m	,	.	/	rsft
+	lctl		lalt lmet		spc		rmet ralt
 )
 
 (defvar
 	;; Note: consider using different time values for your different fingers.
-	;; For example, your pinkies might be slower to release keys and index
+	;; For example, your pinkies might be longer to release keys and index
 	;; fingers faster.
 	tap-time 200
 	hold-time 200
-	hold-time-slow 300
-)
+	hold-time-long 300
 
+	combo-time-short 25
+	combo-time-long 50
+)
 
 
 ;; Definine two aliases, one for esc/control to other for function key
@@ -39,15 +41,16 @@
 	dnd S-C-A-M-f6 ;; Do Not Disturb
 	lp S-C-A-M-l ;; Launchpad
 
-	a (tap-hold $tap-time $hold-time a lalt)
-	s (tap-hold 300 $hold-time s lctl)
+	a (tap-hold $tap-time $hold-time a lctl)
+	s (tap-hold $tap-time $hold-time-long s lalt)
 	d (tap-hold $tap-time $hold-time d lmet)
-	f (tap-hold 100 $hold-time f lsft)
+	f (tap-hold $tap-time $hold-time f lsft)
 
 	j (tap-hold $tap-time $hold-time j rsft)
 	k (tap-hold $tap-time $hold-time k rmet)
-	l (tap-hold $tap-time $hold-time l rctl)
-	; (tap-hold $tap-time $hold-time ; ralt	)
+	l (tap-hold $tap-time $hold-time-long l ralt)
+	; (tap-hold $tap-time $hold-time ; rctl)
+
 	' (tap-hold $tap-time $hold-time ' @l_num)
 
 )
@@ -60,55 +63,56 @@
 ;; ` control - open terminal
 
 (defchordsv2
-	(a s	)	S-tab 50 first-release ()
-	(a s d  ) 	esc 50 first-release ()
-	(  s d  )	` 50 all-released  ()
-	(    d f) 	tab 50 all-released  ()
-	(  s d f) 	esc 50 all-released  ()
-	(a s d f) 	esc 50 all-released  ()
+	(a s	)	S-tab 	$combo-time-long all-released  ()
+	(a s d  )	esc 	$combo-time-long all-released  ()
+	(  s d  )	` 	$combo-time-long all-released  ()
+	(    d f)	tab 	$combo-time-long all-released  ()
+	(  s d f)	esc 	$combo-time-long all-released  ()
+	(a s d f)	esc 	$combo-time-long all-released  ()
 
-	(j k    ) bspc 50 first-release ()
-	(j k l  ) A-bspc 50 first-release ()
-	(    l ;) del 50 first-release ()
+	(j k    )	bspc 	$combo-time-long all-released  ()
+	(j k l  )	A-bspc 	$combo-time-long all-released  ()
+	(    l ;)	del 	$combo-time-long all-released  ()
 
-;;	(  i o	) ret 25 first-release ()
-	(  k l  ) ret 50 first-release ()
-	(j k l ;) ret 50 first-release ()
-	(j     ;) caps 50 first-release ()
+;;	(  i o	)	ret 25 all-released  ()
+	(  k l  )	ret 	$combo-time-short all-released  ()
+	(j k l ;)	ret 	$combo-time-short all-released  ()
+	(j     ;)	caps 	$combo-time-long all-released  ()
 
-	(z x	) M-x 50 first-release ()
-	(x c  	) M-c 50 first-release ()
-	(c v	) M-v 50 first-release ()
+	(z x	)	M-x 	$combo-time-long all-released  ()
+	(x c  	)	M-c 	$combo-time-long all-released  ()
+	(c v	)	M-v 	$combo-time-long all-released  ()
 
-	( , . ) - 50 first-release ()
-	( . / ) = 50 first-release ()
+	( , . 	)	- 	$combo-time-long all-released  ()
+	( . / 	)	= 	$combo-time-long all-released  ()
 )
 
 
 (deflayer base
-	esc		🔅	🔆	@mc	@sls	@dtn		@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
-	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
-	XX		q	w	e	r	t		y	u	i	o	p	[	]	ret
-	@emeh		@a 	@s 	@d 	@f	g		h	@j	@k		@l	@;	@'	\
-	lsft	`	z	x 	c 	v	b		n	m	,	.	/		rsft
-	lctl		lalt	lmet			@l_spc			rmet ralt
+esc	🔅	🔆	@mc	@sls	@dtn	@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
+	`	1	2	3	4	5	6	7	8	9	0	-	=	bspc
+	tab	q	w	e	r	t	y	u	i	o	p	[	]	ret
+	@emeh	@a 	@s 	@d 	@f	g	h	@j	@k	@l	@;	@'	\
+	lsft	z	z	x 	c 	v	b	n	m	,	.	/	rsft
+	lctl	lalt	lmet		@l_spc		rmet ralt
 )
 
 (deflayer space
-	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
-	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
-	tab		S-9	A-left	up	A-right	S-0		y	u	-	=	p	[	]	ret
-	caps		S-tab	left	down	right	tab 		A-bspc	@j	@k	@l	@;	'	\
-	lsft	`	{	S-tab	ret	tab	}		n	m	[	]	/	lrld
-	lctl			lalt lmet			spc			rmet ralt
+	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
+	`	1	2	3	4	5	6	7	8	9	0	-	=	bspc
+	tab	S-9	A-left	up	A-right	S-0	y	u	-	=	p	[	]	ret
+	caps	S-tab	left	down	right	tab 	A-bspc	rsft	rmet	ralt	rctl	'	\
+	lsft	`	rmet	rctl	lshft 	` 	}	n	m	[	]	/	lrld
+	lctl		lalt lmet		spc		rmet ralt
 )
 
+
 (deflayer num
-	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
-	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
-	tab		S-1	S-2	S-3	S-4	S-5		S-6	S-7	S-8	S-9	S-0	[	]	ret
-	caps		1	2	3	4	5		6	7	8	9	0	'	\
-	lsft	`	[	]	S-9 	S-0	b		S--	-	S-=	=	/	rsft
-	lctl			lalt lmet			-			rmet ralt
+	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
+	`	1	2	3	4	5	6	7	8	9	0	-	=	bspc
+	tab	S-1	S-2	S-3	S-4	S-5	S-6	S-7	S-8	S-9	S-0	[	]	ret
+	caps	1	2	3	4	5	6	7	8	9	0	'	\
+	lsft	`	[	]	S-9 	S-0	b	S--	-	S-=	=	/	rsft
+	lctl		lalt lmet		-		rmet ralt
 )
 

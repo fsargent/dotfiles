@@ -1,0 +1,125 @@
+;; Caps to escape/control configuration for Kanata
+
+
+(defcfg process-unmapped-keys no concurrent-tap-hold yes)
+
+
+;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
+(defsrc
+	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
+	IntlBackslash	1	2	3	4	5		6	7	8	9	0		-	=	bspc
+	tab			q	w	e	r	t		y	u	i	o	p		[	]	ret
+	caps			a	s	d	f	g		h	j	k	l	;		'	\
+	lsft	`		z	x	c	v	b		n	m	,	.	/		rsft
+	lctl			lalt lmet			spc			rmet ralt
+)
+
+(defvar
+	;; Note: consider using different time values for your different fingers.
+	;; For example, your pinkies might be slower to release keys and index
+	;; fingers faster.
+	tap-time 200
+	hold-time 200
+	hold-time-slow 300
+)
+
+
+(deftemplate charmod (char mod)
+  (switch
+    ((key-timing 3 less-than 140)) $char break
+    () (tap-hold-release 0 200	  $char $mod) break
+  )
+)
+
+(deflayermap (main)
+  caps (t! charmod esc (multi ctl alt sft))
+  a (t! charmod a lctl)
+  s (t! charmod s lalt)
+  d (t! charmod d lmet)
+  f (t! charmod f lsft)
+  j (t! charmod j rsft)
+  k (t! charmod k rmet)
+  l (t! charmod l lalt)
+  ; (t! charmod ; rctl)
+  z (t! charmod z lctl)
+  x (t! charmod x ralt)
+  . (t! charmod . ralt)
+  / (t! charmod / rctl)
+  spc (t! charmod spc (layer-while-held space))
+)
+
+(defalias
+	meh (multi ctl alt sft)
+	spc (tap-hold $tap-time $hold-time spc (layer-while-held space))
+	emeh (tap-hold $tap-time $hold-time esc @meh)
+	escctrl (tap-hold 100 100 esc lctl)
+	l_num (layer-toggle num)
+
+	mc C-up ;; Mission Control
+	sls M-spc ;; Spotlight Search
+	dtn S-C-A-M-f5 ;; Dictation
+	dnd S-C-A-M-f6 ;; Do Not Disturb
+	lp S-C-A-M-l ;; Launchpad
+)
+
+;; chords / combos
+
+;; tab cmd - switch applications
+;; ` cmd - switch windows
+;; tab control - switch tab
+;; ` control - open terminal
+
+(defchordsv2
+	( [ ] ) lrld 50 first-release ()
+	(a s	)	S-tab 50 first-release ()
+	(a s d  ) 	esc 50 first-release ()
+	(  s d  )	` 50 all-released  ()
+	(    d f) 	tab 50 all-released  ()
+	(  s d f) 	esc 50 all-released  ()
+	(a s d f) 	esc 50 all-released  ()
+
+	(j k    ) bspc 50 first-release ()
+	(j k l  ) A-bspc 50 first-release ()
+	(    l ;) del 50 first-release ()
+
+;;	(  i o	) ret 25 first-release ()
+	(  k l  ) ret 50 first-release ()
+	(j k l ;) ret 50 first-release ()
+	(j     ;) caps 50 first-release ()
+
+	(z x	) M-x 50 first-release ()
+	(x c  	) M-c 50 first-release ()
+	(c v	) M-v 50 first-release ()
+
+	( , . ) - 50 first-release ()
+	( . / ) = 50 first-release ()
+)
+
+
+(deflayer base
+	esc		🔅	🔆	@mc	@sls	@dtn		@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
+	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
+	XX		q	w	e	r	t		y	u	i	o	p	[	]	ret
+	@emeh		a	s	d	f	g		h	j	k	l	;	'	\
+	lsft	`	z	x 	c 	v	b		n	m	,	.	/		rsft
+	lctl		lalt	lmet			@spc			rmet ralt
+)
+
+(deflayer space
+	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
+	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
+	tab		S-9	A-left	up	A-right	S-0		y	u	-	=	p	[	]	ret
+	caps		S-tab	left	down	right	tab 		A-bspc	j	k	l	;	'	\
+	lsft	`	{	S-tab	ret	tab	}		n	m	[	]	/	lrld
+	lctl			lalt lmet			spc			rmet ralt
+)
+
+(deflayer num
+	esc		f1	f2	f3	f4	f5		f6	f7	f8	f9	f10	f11	f12
+	`		1	2	3	4	5		6	7	8	9	0	-	=	bspc
+	tab		S-1	S-2	S-3	S-4	S-5		S-6	S-7	S-8	S-9	S-0	[	]	ret
+	caps		1	2	3	4	5		6	7	8	9	0	'	\
+	lsft	`	[	]	S-9 	S-0	b		S--	-	S-=	=	/	rsft
+	lctl			lalt lmet			-			rmet ralt
+)
+

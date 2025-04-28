@@ -1,0 +1,113 @@
+(defcfg
+  process-unmapped-keys no
+  concurrent-tap-hold yes
+)
+
+(defsrc
+  q w e r t y u i o p
+  a s d f g h j k l ;
+  z x c v b n m , . /
+        spc
+)
+
+(defchordsv2
+  (w e) esc 50 all-released (extend)
+  (i o) bspc 50 all-released (extend)
+  (x c) tab 50 all-released (extend)
+  (, .) ret 50 all-released (extend)
+)
+
+(deftemplate charmod (char mod)
+  (switch
+    ((key-timing 3 less-than 375)) $char break
+    () (tap-hold-release-timeout 200 500 $char $mod $char) break
+  )
+)
+
+(defvirtualkeys
+  shift (multi (layer-switch main) lsft)
+  clear (multi (layer-switch main) (on-press release-virtualkey shift))
+)
+
+(deflayermap (main)
+  a (t! charmod a lmet)
+  s (t! charmod s lalt)
+  d (t! charmod d dz)
+  f (t! charmod f lctl)
+  j (t! charmod j rctl)
+  k (t! charmod k rsft)
+  l (t! charmod l lalt)
+  ; (t! charmod ; rmet)
+  z (t! charmod z lctl)
+  x (t! charmod x ralt)
+  v (t! charmod v (layer-while-held fumbol))
+  m (t! charmod m (layer-while-held fumbol))
+  . (t! charmod . ralt)
+  / (t! charmod / rctl)
+  spc (t! charmod spc (multi (layer-switch extend) (on-release tap-virtualkey clear)))
+)
+
+(deflayermap (extend)
+  e (layer-switch fumbol)
+  r (on-press press-virtualkey shift)
+  y ins
+  u home
+  i up
+  o end
+  p pgup
+  a lmet
+  s lalt
+  d lsft
+  f lctl
+;;g comp ;; Enable if not MacOS.
+  h esc
+  j left
+  k down
+  l rght
+  ; pgdn
+  z mute
+  x vold
+  c volu
+  v pp
+  n tab
+  m bspc
+  , spc
+  . del
+  / ret
+)
+
+(deflayermap (fumbol)
+  q f1
+  w f2
+  e f3
+  r f4
+  t f5
+  y f6
+  u f7
+  i f8
+  o f9
+  p f10
+  [ f11
+  ] f12
+  \ f13
+  a (t! charmod 1 lmet)
+  s (t! charmod 2 lalt)
+  d (t! charmod 3 lsft)
+  f (t! charmod 4 lctl)
+  g 5
+  h 6
+  j (t! charmod 7 rctl)
+  k (t! charmod 8 rsft)
+  l (t! charmod 9 lalt)
+  ; (t! charmod 0 rmet)
+  z (t! charmod lsgt lctl)
+  x (t! charmod ` ralt)
+  c -
+  v =
+  b f11
+  n f12
+  m '
+  , [
+  . (t! charmod ] ralt)
+  / (t! charmod \ lctl)
+)

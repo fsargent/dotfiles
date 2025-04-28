@@ -34,6 +34,7 @@ autoCorrect = immediate
 
 [core]
 pager = delta
+	editor = nvim
 [delta]
 # https://dandavison.github.io/delta/configuration.html
 hyperlinks = true
