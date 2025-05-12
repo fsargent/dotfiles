@@ -1,118 +1,196 @@
 ;; Caps to escape/control configuration for Kanata
 
-
-(defcfg process-unmapped-keys no concurrent-tap-hold yes)
-
+(defcfg process-unmapped-keys yes concurrent-tap-hold yes)
 
 ;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
 (defsrc
-	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
-	IntlBackslash	1	2	3	4	5	6	7	8	9	0	-	=	bspc
-	tab		q	w	e	r	t	y	u	i	o	p	[	]	ret
-	caps		a	s	d	f	g	h	j	k	l	;	'	\
-	lsft	`	z	x	c	v	b	n	m	,	.	/	rsft
-	lctl		lalt lmet		spc		rmet ralt
+        esc     f1      f2      f3      f4      f5      f6      f7      f8      f9      f10     f11     f12
+        IntlBackslash   1       2       3       4       5       6       7       8       9       0       -       =       bspc
+        tab             q       w       e       r       t       y       u       i       o       p       [       ]       ret
+        caps            a       s       d       f       g       h       j       k       l       ;       '       \
+        lsft    `       z       x       c       v       b       n       m       ,       .       /       rsft
+        lctl            lalt lmet               spc             rmet ralt
 )
 
 (defvar
-	;; Note: consider using different time values for your different fingers.
-	;; For example, your pinkies might be longer to release keys and index
-	;; fingers faster.
-	tap-time 200
-	hold-time 200
-	hold-time-long 300
+        ;; Note: consider using different time values for your different fingers.
+        ;; For example, your pinkies might be longer to release keys and index
+        ;; fingers faster.
+        tap-time 200
+        hold-time 200
+        hold-time-long 300
 
-	combo-time-short 25
-	combo-time-long 50
+        combo-time-short 25
+        combo-time-long 50
+        tot 220  ;; setting this to 0 could in theory improve delays
 )
 
-
-;; Definine two aliases, one for esc/control to other for function key
+;; ---- DEFINE ALIASES THAT TEMPLATES MIGHT DEPEND ON FIRST ----
 (defalias
-	meh (multi ctl alt sft)
-	l_spc (tap-hold $tap-time $hold-time spc (layer-while-held space))
+        ;; Your .tp alias, which is used in the homerowmod template
+        .tp  (multi
+                (one-shot 95 (layer-while-held typing))
+                (on-idle  95 tap-vkey to-base )
+        )
+        ;; Other foundational aliases can also go here if templates depend on them
+)
+
+;; ---- DEFINE TEMPLATES NEXT ----
+(deftemplate homerowmod (timeouttap timeouthold keytap keyhold)
+        (tap-hold $timeouttap $timeouthold
+                (multi $keytap  @.tp) ;; Now @.tp should be recognized
+                $keyhold
+        )
+)
+
+(defalias df_combo_action (
+  switch (layer space) ;; Check if the 'space' layer is the active one
+    A-tab                       ;; If yes, execute Alt+Tab
+    break                       ;; Stop checking
+    ()                          ;; Otherwise (meaning any other layer, including 'base')
+    tab                         ;; Execute Tab
+    break
+
+))
+
+
+;; ---- DEFINE REMAINING ALIASES ----
+(defalias
+        meh (multi ctl alt sft)
+        l_spc (tap-hold $tap-time $hold-time spc (layer-while-held space))
 	emeh (tap-hold $tap-time $hold-time esc @meh)
 	escctrl (tap-hold 100 100 esc lctl)
 	l_num (layer-toggle num)
+        os2 (one-shot-press 2000 lsft)
+        ques (
+                switch
+                        (lsft rsft)
+                        (unshift /)
+                break
+                        ()
+                        S-/
+                break
+        )
+        bslash (
+                switch
+                        (lsft rsft)
+                        (unshift \)
+                break
+                        ()
+                        /
+                break
+        )
 
-	mc C-up ;; Mission Control
-	sls M-spc ;; Spotlight Search
-	dtn S-C-A-M-f5 ;; Dictation
-	dnd S-C-A-M-f6 ;; Do Not Disturb
-	lp S-C-A-M-l ;; Launchpad
+        mc C-up ;; Mission Control
+        sls M-spc ;; Spotlight Search
+        dtn S-C-A-M-f5 ;; Dictation
+        dnd S-C-A-M-f6 ;; Do Not Disturb
+        lp S-C-A-M-l ;; Launchpad
 
-	a (tap-hold $tap-time $hold-time a lctl)
-	s (tap-hold $tap-time $hold-time-long s lalt)
-	d (tap-hold $tap-time $hold-time d lmet)
-	f (tap-hold $tap-time $hold-time f lsft)
+        ;; Your HRM aliases using the template
+        ' (tap-hold $tap-time $hold-time ' @l_num) ;; This one doesn't use the template yet
+        a (t! homerowmod $tot 450 a lctl)
+        s (t! homerowmod $tot 400 s lalt)
+        d (t! homerowmod $tot 300 d lmet)
+        f (t! homerowmod $tot 160 f lsft)
 
-	j (tap-hold $tap-time $hold-time j rsft)
-	k (tap-hold $tap-time $hold-time k rmet)
-	l (tap-hold $tap-time $hold-time-long l ralt)
-	; (tap-hold $tap-time $hold-time ; rctl)
+        j (t! homerowmod $tot 160 j rsft)
+        k (t! homerowmod $tot 200 k rmet)
+        l (t! homerowmod $tot 200 l ralt)
+        ; (t! homerowmod $tot 200 ; rctl) ;; Semicolon as a key might need escaping in some contexts, but direct use is often fine.
 
-	' (tap-hold $tap-time $hold-time ' @l_num)
-
+        .base   (layer-while-held base)
+        ;; .tp is defined above
 )
 
-;; chords / combos
 
-;; tab cmd - switch applications
-;; ` cmd - switch windows
-;; tab control - switch tab
-;; ` control - open terminal
+;; ---- DEFINE TYPING KEY LISTS (for tap-hold-except-keys) ----
+(defvar LH_TYPING_KEYS (
+  ;; Alpha keys (including other HRMs on the same hand)
+  q w e r t g a s d f
+  ;; Bottom row alpha keys
+  z x c v b
+  ;; Number row keys and grave accent (as per your defsrc)
+  IntlBackslash 1 2 3 4 5 \ `  ;; Note: fixed space between \ and `
+  ;; Other common left-hand keys
+  tab caps lsft
+))
+
+(defvar RH_TYPING_KEYS (
+  ;; Alpha keys (including other HRMs on the same hand)
+  y u i o p h j k l \ ; '   ;; Note: \; for semicolon character if needed, else ;
+  ;; Bottom row alpha keys
+  n m
+  ;; Number row keys
+  6 7 8 9 0 - =
+  ;; Other common right-hand keys (including backslash, brackets, etc., as per your defsrc)
+  [ ] \ ret , . / rsft     ;; Note: \ for backslash character
+  ;; Backspace is often involved in right-hand sequences
+  bspc
+))
+
+
 
 (defchordsv2
-	(a s	)	S-tab 	$combo-time-long all-released  ()
-	(a s d  )	esc 	$combo-time-long all-released  ()
-	(  s d  )	` 	$combo-time-long all-released  ()
-	(    d f)	tab 	$combo-time-long all-released  ()
-	(  s d f)	esc 	$combo-time-long all-released  ()
-	(a s d f)	esc 	$combo-time-long all-released  ()
+        (a s    )       S-tab   $combo-time-long all-released  ()
+        (a s d  )       esc     $combo-time-long all-released  ()
+        (  s d  )       `       $combo-time-long all-released  ()
+        (    d f)       @df_combo_action     $combo-time-long all-released  ()
+        (  s d f)       esc     $combo-time-long all-released  ()
+        (a s d f)       esc     $combo-time-long all-released  ()
 
-	(j k    )	bspc 	$combo-time-long all-released  ()
-	(j k l  )	A-bspc 	$combo-time-long all-released  ()
-	(    l ;)	del 	$combo-time-long all-released  ()
+        (j k    )       A-bspc  $combo-time-long first-release  ()
+        (m ,    )       bspc    $combo-time-long first-release  ()
+        (    l ;)       del     $combo-time-long all-released  ()
 
-;;	(  i o	)	ret 25 all-released  ()
-	(  k l  )	ret 	$combo-time-short all-released  ()
-	(j k l ;)	ret 	$combo-time-short all-released  ()
-	(j     ;)	caps 	$combo-time-long all-released  ()
+        (  k l  )       ret     $combo-time-short all-released  ()
+        (j k l ;)       ret     $combo-time-short all-released  ()
+        (j     ;)       caps    $combo-time-long all-released  ()
 
-	(z x	)	M-x 	$combo-time-long all-released  ()
-	(x c  	)	M-c 	$combo-time-long all-released  ()
-	(c v	)	M-v 	$combo-time-long all-released  ()
+        (z x    )       M-x     $combo-time-long all-released  ()
+        (x c    )       M-c     $combo-time-long all-released  ()
+        (c v    )       M-v     $combo-time-long all-released  ()
 
-	( , . 	)	- 	$combo-time-long all-released  ()
-	( . / 	)	= 	$combo-time-long all-released  ()
+        ( , .   )       -       $combo-time-long all-released  ()
+        ( m , . )       S--       $combo-time-long all-released  ()
+        ( . /   )       =       $combo-time-long all-released  ()
+        ( , . / )       S-=       $combo-time-long all-released  ()
 )
-
 
 (deflayer base
-esc	🔅	🔆	@mc	@sls	@dtn	@dnd	◀◀	▶⏸	▶▶	🔇	🔉	🔊
-	`	1	2	3	4	5	6	7	8	9	0	-	=	bspc
-	tab	q	w	e	r	t	y	u	i	o	p	[	]	ret
-	@emeh	@a 	@s 	@d 	@f	g	h	@j	@k	@l	@;	@'	\
-	lsft	z	z	x 	c 	v	b	n	m	,	.	/	rsft
-	lctl	lalt	lmet		@l_spc		rmet ralt
+  esc     🔅      🔆      @mc     @sls    @dtn    @dnd    ◀◀      ▶⏸      ▶▶      🔇      🔉      🔊
+  `       1       2       3       4       5       6       7       8       9       0       -       =       bspc
+  tab     (multi q @.tp) (multi w @.tp) (multi e @.tp) (multi r @.tp) (multi t @.tp) (multi y @.tp) (multi u @.tp) (multi i @.tp) (multi o @.tp) (multi p @.tp) [       ]       ret
+  @emeh   @a      @s      @d      @f      (multi g @.tp) (multi h @.tp) @j      @k      @l      @;      @'      @bslash
+  @os2    S-1     (multi z @.tp) (multi x @.tp) (multi c @.tp) (multi v @.tp) (multi b @.tp) (multi n @.tp) (multi m @.tp) ,       .       @ques   @os2
+  lctl    lalt    lmet            @l_spc          rmet ralt
 )
 
+
 (deflayer space
-	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
-	`	1	2	3	4	5	6	7	8	9	0	-	=	bspc
-	tab	S-9	A-left	up	A-right	S-0	y	u	-	=	p	[	]	ret
-	caps	S-tab	left	down	right	tab 	A-bspc	rsft	rmet	ralt	rctl	'	\
-	lsft	`	rmet	rctl	lshft 	` 	}	n	m	[	]	/	lrld
-	lctl		lalt lmet		spc		rmet ralt
+        esc     f1      f2      f3      f4      f5      f6      f7      f8      f9      f10     f11     f12
+        `       1       2       3       4       5       6       7       8       9       0       -       =       bspc
+        A-tab     S-9     A-left  up      A-right S-0     y       u       -       =       p       [       ]       ret
+        caps    S-tab   left    down    right   tab     A-bspc  rsft    rmet    ralt    rctl    '       S-\
+        lsft    /       rmet    rctl    lshft   `       }       n       m       [       ]       \       lrld
+        lctl            lalt lmet                       spc             rmet ralt
 )
 
 
 (deflayer num
-	esc	f1	f2	f3	f4	f5	f6	f7	f8	f9	f10	f11	f12
-	`	1	2	3	4	5	6	7	8	9	0	-	=	bspc
-	tab	S-1	S-2	S-3	S-4	S-5	S-6	S-7	S-8	S-9	S-0	[	]	ret
-	caps	1	2	3	4	5	6	7	8	9	0	'	\
-	lsft	`	[	]	S-9 	S-0	b	S--	-	S-=	=	/	rsft
-	lctl		lalt lmet		-		rmet ralt
+        esc     f1      f2      f3      f4      f5      f6      f7      f8      f9      f10     f11     f12
+        `       1       2       3       4       5       6       7       8       9       0       -       =       bspc
+        tab     S-1     S-2     S-3     S-4     S-5     S-6     S-7     S-8     S-9     S-0     [       ]       ret
+        caps    1       2       3       4       5       6       7       8       9       0       '       \
+        lsft    `       [       ]       S-9     S-0     b       S--     -       S-=     =       /       rsft
+        lctl            lalt lmet               -               rmet ralt
 )
 
+(defvirtualkeys
+to-base (layer-switch base)
+)
+
+;; ---- LAYERS AND OTHER DEFINITIONS ----
+(deflayermap (typing)
+ a (unmod a) b (unmod b) c (unmod c) d (unmod d) e (unmod e) f (unmod f) g (unmod g) h (unmod h) i (unmod i) j (unmod j) k (unmod k) l (unmod l) m (unmod m) n (unmod n) o (unmod o) p (unmod p) q (unmod q) r (unmod r) s (unmod s) t (unmod t) u (unmod u) v (unmod v) w (unmod w) x (unmod x) y (unmod y) z (unmod z)
+)
