@@ -43,15 +43,14 @@
         )
 )
 
-(defalias df_combo_action (
-  switch (layer space) ;; Check if the 'space' layer is the active one
-    A-tab                       ;; If yes, execute Alt+Tab
-    break                       ;; Stop checking
-    ()                          ;; Otherwise (meaning any other layer, including 'base')
-    tab                         ;; Execute Tab
-    break
 
-))
+(defalias df_combo_action (
+  switch (
+	(layer space)) A-tab break
+	() tab break
+ )
+)
+
 
 
 ;; ---- DEFINE REMAINING ALIASES ----
@@ -162,7 +161,7 @@
   `       1       2       3       4       5       6       7       8       9       0       -       =       bspc
   tab     (multi q @.tp) (multi w @.tp) (multi e @.tp) (multi r @.tp) (multi t @.tp) (multi y @.tp) (multi u @.tp) (multi i @.tp) (multi o @.tp) (multi p @.tp) [       ]       ret
   @emeh   @a      @s      @d      @f      (multi g @.tp) (multi h @.tp) @j      @k      @l      @;      @'      @bslash
-  @os2    S-1     (multi z @.tp) (multi x @.tp) (multi c @.tp) (multi v @.tp) (multi b @.tp) (multi n @.tp) (multi m @.tp) ,       .       @ques   @os2
+  lsft    S-1     (multi z @.tp) (multi x @.tp) (multi c @.tp) (multi v @.tp) (multi b @.tp) (multi n @.tp) (multi m @.tp) ,       .       @ques   rsft
   lctl    lalt    lmet            @l_spc          rmet ralt
 )
 
