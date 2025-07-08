@@ -66,6 +66,7 @@ export ZSH_CUSTOM="$ZSH/custom"
 plugins=(
   git            # Git aliases and functions
   you-should-use # Suggests aliases for commands you type often
+  dotenv
 )
 
 # Source Oh My Zsh
@@ -178,3 +179,4 @@ git_main_branch() {
 
 # Added by Windsurf
 export PATH="/Users/fsargent/.codeium/windsurf/bin:$PATH"
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
