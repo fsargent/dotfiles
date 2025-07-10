@@ -180,3 +180,8 @@ git_main_branch() {
 # Added by Windsurf
 export PATH="/Users/fsargent/.codeium/windsurf/bin:$PATH"
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/fsargent/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+export PATH="/opt/homebrew/Cellar/arm-none-eabi-gcc@8/8.5.0_2/bin:/opt/homebrew/Cellar/avr-gcc@8/8.5.0_2/bin:$PATH"

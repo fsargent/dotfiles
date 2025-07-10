@@ -88,3 +88,22 @@ If you prefer to set up the service manually, follow these steps:
     Use `launchctl` with `sudo` to load the service.
     ```bash
     sudo launchctl load /Library/LaunchDaemons/com.user.kanata.plist
+||||||| parent of b90a895 (Add kanata service)=======
+    ```
+
+---
+
+## Comparison with Linux (`systemd`) Approach
+
+The setup in this repository is specific to macOS and its `launchd` service manager. It differs significantly from common Linux setups that use `systemd`.
+
+| Feature | This macOS (`launchd`) Solution | Common Linux (`systemd`) Solution |
+| :--- | :--- | :--- |
+| **Platform** | **macOS** | **Linux** (e.g., Ubuntu, Arch) |
+| **Service Manager** | `launchd` | `systemd` |
+| **Configuration** | `.plist` files in `/Library/LaunchDaemons` | `.service` files in `/etc/systemd/system` |
+| **Management Tool** | `launchctl` (wrapped by our script) | `systemctl` |
+| **Security Model** | Runs as `root` user, which is a standard and often necessary practice for low-level daemons on macOS. | Often uses a dedicated, unprivileged user (e.g., `kanata`) and `systemd`'s advanced sandboxing features for higher security. |
+| **Device Access** | Handled by macOS permissions system. | Often requires `udev` rules to grant a specific user access to `/dev/uinput`. |
+
+In summary, while the end goal is the same (running Kanata as a service), the implementation details are fundamentally different and specific to each operating system. This solution provides an idiomatic and robust way to manage Kanata on macOS.
