@@ -1,10 +1,5 @@
 ;; Caps to escape/control configuration for Kanata
-
-(defcfg process-unmapped-keys yes concurrent-tap-hold yes
- macos-dev-names-include (
-    "Apple Internal Keyboard / Trackpad"
-  )
-  )
+(defcfg process-unmapped-keys yes concurrent-tap-hold yes)
 
 ;; Config for 12" MacBook with physical f keys. This config allows for brightness etc to still work.
 (defsrc
