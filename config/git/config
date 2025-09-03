@@ -33,7 +33,6 @@ untracked = cyan
 autoCorrect = immediate
 
 [core]
-pager = delta
 	editor = hx
 [delta]
 # https://dandavison.github.io/delta/configuration.html
