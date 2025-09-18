@@ -17,6 +17,9 @@ mkdir -p ~/.config
 # Link nvim config if it doesn't exist
 [ ! -e ~/.config/nvim ] && ln -s "${PWD}/config/nvim" ~/.config/nvim
 
+# Link helix config if it doesn't exist
+[ ! -e ~/.config/helix ] && ln -s "${PWD}/config/helix" ~/.config/helix
+
 # Link starship config if it doesn't exist
 [ ! -e ~/.config/starship.toml ] && ln -s "${PWD}/starship.toml" ~/.config/starship.toml
 
