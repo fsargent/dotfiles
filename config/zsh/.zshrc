@@ -106,8 +106,8 @@ eval "$(mise activate zsh)"
 eval "$(zoxide init zsh)"
 # Note: The `alias cd="z"` will be moved to .aliases
 
-# OP CLI Plugin
-source /Users/fsargent/.config/op/plugins.sh
+# OP CLI Plugin - source if file exists
+[ -f "/Users/fsargent/.config/op/plugins.sh" ] && source "/Users/fsargent/.config/op/plugins.sh"
 
 # TheFuck (Command line corrector)
 eval $(thefuck --alias)
