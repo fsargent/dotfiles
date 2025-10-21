@@ -28,6 +28,42 @@ cd dotfiles
 
 After running the `setup.sh` script, you may need to restart your terminal or other applications for the changes to take effect.
 
+## Favuorite Apps (non terminal)
+
+- Raycast
+- Superwhisper
+- Homerow
+- Setapp
+  - In Your Face
+  - Bartender
+  - Cleanshot X
+  - Soulver Calculator
+
+## Homebrew Casks
+
+- 1password-cli
+- adguard-vpn
+- cursor
+- discord
+- font-fira-code-nerd-font
+- font-geist-mono
+- font-geist-mono-nerd-font
+- font-jetbrains-mono-nerd-font
+- font-meslo-lg-nerd-font
+- font-monaspace
+- gcloud-cli
+- ghostty
+- keycastr
+- raycast
+- setapp
+- spotify
+- steam
+- tailscale
+- visual-studio-code
+- warp
+
+### Chrome
+
 ## Contents
 
 This repository contains the following dotfiles:

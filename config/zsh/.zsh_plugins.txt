@@ -1,0 +1,14 @@
+# Antidote plugins bundle
+# Format: owner/repo or owner/repo path:subdirectory
+
+# Git plugin for git aliases and functions
+ohmyzsh/ohmyzsh path:plugins/git
+
+# Dotenv plugin for loading .env files
+ohmyzsh/ohmyzsh path:plugins/dotenv
+
+# Autosuggestions
+zsh-users/zsh-autosuggestions
+
+# Syntax highlighting
+zsh-users/zsh-syntax-highlighting

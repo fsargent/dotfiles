@@ -1,11 +1,12 @@
-# ~/.zshrc - Reorganized
+# ~/.zshrc
+
+# Only load interactive features for interactive shells
+# This ensures non-interactive shells (like Cursor agents) work correctly
+[[ -o interactive ]] || return
 
 # ------------------------------------------------------------------------------
-# Initial Sourcing & Core Zsh Setup
+# Core Zsh Setup
 # ------------------------------------------------------------------------------
-
-# Source custom aliases
-source ~/.config/zsh/.aliases
 
 # History configuration
 HISTFILE=$HOME/.zhistory
@@ -20,28 +21,24 @@ setopt hist_verify          # Show command with history expansion before running
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
+# Source custom aliases if it exists
+[[ -f ~/.config/zsh/.aliases ]] && source ~/.config/zsh/.aliases
+
 # ------------------------------------------------------------------------------
-# Environment Variables & PATH Setup
+# PATH Setup (deduplicate from .zshenv)
 # ------------------------------------------------------------------------------
 
-# Consolidated PATH exports
-# Order: Homebrew bin -> User local bin -> Homebrew sbin -> PNPM -> Original PATH
-export PATH="/opt/homebrew/bin:/Users/fsargent/.local/bin:/opt/homebrew/sbin:$PATH"
+# Only add to PATH if not already present (avoid duplicates)
+[[ ":$PATH:" == *":/opt/homebrew/bin:"* ]] || export PATH="/opt/homebrew/bin:$PATH"
+[[ ":$PATH:" == *":/opt/homebrew/sbin:"* ]] || export PATH="/opt/homebrew/sbin:$PATH"
+[[ ":$PATH:" == *":$HOME/.local/bin:"* ]] || export PATH="$HOME/.local/bin:$PATH"
 
-# pnpm PATH setup
-export PNPM_HOME="/Users/fsargent/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+# Add managed tool paths
+export PATH="/Users/fsargent/.rd/bin:$PATH"
+export PATH="/opt/homebrew/Cellar/arm-none-eabi-gcc@8/8.5.0_2/bin:/opt/homebrew/Cellar/avr-gcc@8/8.5.0_2/bin:$PATH"
+export PATH="/opt/homebrew/opt/arm-none-eabi-binutils/bin:$PATH"
 
-# Other environment variables
-export TRUNK_TELEMETRY=OFF
-export XDG_CONFIG_HOME="$HOME/.config/"
-export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgreprc" # Use XDG_CONFIG_HOME
-export BAT_THEME=tokyonight_night
-
-# Less configuration
+# Environment variables
 export LESS="\
 --chop-long-lines \
 --HILITE-UNREAD \
@@ -57,108 +54,131 @@ export LESS="\
 --window=-4"
 
 # ------------------------------------------------------------------------------
-# Oh My Zsh Framework & Plugins
+# Antidote Plugin Manager
 # ------------------------------------------------------------------------------
 
-export ZSH="$HOME/.config/oh-my-zsh" # Assuming OMZ is installed here
-export ZSH_CUSTOM="$ZSH/custom"
+# Initialize completion system first (required by plugins for compdef)
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR}/.zcompdump(#qNmh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
 
-plugins=(
-  git            # Git aliases and functions
-  you-should-use # Suggests aliases for commands you type often
-  dotenv
-)
-
-# Source Oh My Zsh
-source $ZSH/oh-my-zsh.sh
-
-# Plugin configurations
-export YSU_MESSAGE_FORMAT="$(tput setaf 1)Hey! I found this %alias_type for %command: %alias$(tput sgr0)"
-
-# Load Zsh completions provided by Homebrew
+# Add Homebrew completions to fpath
 if type brew &>/dev/null; then
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-    # Initialize completions (Oh My Zsh might handle this, but explicitly is safe)
-    # autoload -Uz compinit && compinit
 fi
-# Note: Oh My Zsh usually runs compinit. If completions break, uncomment the line above.
 
-# Source Zsh Autosuggestions (loaded after OMZ to ensure compatibility)
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# Source Zsh Syntax Highlighting (loaded after OMZ)
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Source antidote and initialize dynamic plugin loading (silently)
+{
+    source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
+    antidote init
+    # Load plugins specified in .zsh_plugins.txt
+    [[ -f ~/.config/zsh/.zsh_plugins.txt ]] && antidote load ~/.config/zsh/.zsh_plugins.txt
+} &> /dev/null
 
 # ------------------------------------------------------------------------------
-# Tool Initializations & Configuration
+# Tool Initializations (Starship, FZF, etc.) - Deferred for speed
 # ------------------------------------------------------------------------------
 
-# Starship Prompt
-eval "$(starship init zsh)"
+# Use a simple prompt initially, then load Starship after first prompt
+# This dramatically improves first_prompt_lag_ms
+if [[ -z "$STARSHIP_INIT" ]]; then
+    export STARSHIP_INIT=1
+    # Use basic prompt initially
+    PS1='%~$ '
+fi
 
-# Mise (formerly rtx)
-eval "$(mise activate zsh)"
+# Defer Starship initialization
+starship_init() {
+    eval "$(starship init zsh)" 2>/dev/null
+    unfunction starship_init
+}
 
-# Autojump (Directory jumper based on frequency/recency)
-[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
+# Initialize Starship on first command if not already done
+precmd_functions+=(starship_init)
 
-# Zoxide (Smarter directory changer)
-eval "$(zoxide init zsh)"
-# Note: The `alias cd="z"` will be moved to .aliases
+# FZF (Fuzzy Finder) - deferred initialization
+fzf_init() {
+    eval "$(fzf --zsh)" 2>/dev/null || return
 
-# OP CLI Plugin - source if file exists
-[ -f "/Users/fsargent/.config/op/plugins.sh" ] && source "/Users/fsargent/.config/op/plugins.sh"
+    # FZF Theme
+    fg="#CBE0F0"
+    bg="#011628"
+    bg_highlight="#143652"
+    purple="#B388FF"
+    blue="#06BCE4"
+    cyan="#2CF9ED"
+    export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
 
-# TheFuck (Command line corrector)
-eval $(thefuck --alias)
-eval $(thefuck --alias fk) # Optional shorter alias
+    # FZF Use fd for faster searching
+    export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
 
-# FZF (Fuzzy Finder)
-# ------------------
-# Set up fzf key bindings and fuzzy completion
-eval "$(fzf --zsh)"
+    # FZF fd integration for completion
+    _fzf_compgen_path() {
+      fd --hidden --exclude .git . "$1"
+    }
+    _fzf_compgen_dir() {
+      fd --type=d --hidden --exclude .git . "$1"
+    }
 
-# FZF Theme
-fg="#CBE0F0"
-bg="#011628"
-bg_highlight="#143652"
-purple="#B388FF"
-blue="#06BCE4"
-cyan="#2CF9ED"
-export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
+    # FZF Preview settings using eza and bat
+    show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
+    export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
+    export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 
-# FZF Use fd for faster searching
+    # FZF Advanced customization for specific commands
+    _fzf_comprun() {
+      local command=$1
+      shift
+      case "$command" in
+        cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+        export|unset) fzf --preview "eval 'echo \${}'"         "$@" ;;
+        ssh)          fzf --preview 'dig {}'                   "$@" ;;
+        *)            fzf --preview "$show_file_or_dir_preview" "$@" ;;
+      esac
+    }
+
+    # Remove this function after first call
+    unfunction fzf_init
+}
+
+# Load FZF on first command
+precmd_functions+=(fzf_init)
+
+# Pre-set FZF environment variables (these are cheap and don't require fzf)
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
 
-# FZF fd integration for completion
-_fzf_compgen_path() {
-  fd --hidden --exclude .git . "$1"
+# OP CLI Plugin - deferred initialization
+op_init() {
+    [[ -f "/Users/fsargent/.config/op/plugins.sh" ]] && source "/Users/fsargent/.config/op/plugins.sh"
+    unfunction op_init
 }
-_fzf_compgen_dir() {
-  fd --type=d --hidden --exclude .git . "$1"
+precmd_functions+=(op_init)
+
+# TheFuck (Command line corrector) - deferred initialization
+# Only initialize when first used to save startup time
+thefuck_init() {
+    eval $(thefuck --alias) 2>/dev/null
+    eval $(thefuck --alias fk) 2>/dev/null
+    unfunction thefuck_init
 }
+alias fk='thefuck_init; fk'
 
-# FZF Git integration
-source ~/.config/fzf-git.sh # Assuming this file exists
-
-# FZF Preview settings using eza and bat
-show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
-export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
-export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
-
-# FZF Advanced customization for specific commands
-_fzf_comprun() {
-  local command=$1
-  shift
-  case "$command" in
-    cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
-    export|unset) fzf --preview "eval 'echo \${}'"         "$@" ;;
-    ssh)          fzf --preview 'dig {}'                   "$@" ;;
-    *)            fzf --preview "$show_file_or_dir_preview" "$@" ;;
-  esac
-}
+# Autojump (Directory jumper based on frequency/recency)
+if [ -f /opt/homebrew/etc/profile.d/autojump.sh ]; then
+    # Defer autojump loading
+    autojump_init() {
+        . /opt/homebrew/etc/profile.d/autojump.sh
+        unfunction autojump_init
+    }
+    alias j='autojump_init; j'
+fi
 
 # ------------------------------------------------------------------------------
 # Custom Functions
@@ -172,17 +192,3 @@ git_main_branch() {
     echo master
   fi
 }
-
-# ------------------------------------------------------------------------------
-# End of ~/.zshrc
-# ------------------------------------------------------------------------------
-
-# Added by Windsurf
-export PATH="/Users/fsargent/.codeium/windsurf/bin:$PATH"
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
-
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/fsargent/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
-export PATH="/opt/homebrew/Cellar/arm-none-eabi-gcc@8/8.5.0_2/bin:/opt/homebrew/Cellar/avr-gcc@8/8.5.0_2/bin:$PATH"
-export PATH="/opt/homebrew/opt/arm-none-eabi-binutils/bin:$PATH"
