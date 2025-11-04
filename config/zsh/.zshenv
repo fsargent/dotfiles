@@ -33,3 +33,15 @@ export TRUNK_TELEMETRY=OFF
 if command -v mise >/dev/null 2>&1; then
     eval "$(mise activate zsh)" 2>/dev/null || true
 fi
+
+# Zoxide - Initialize for all shells (needed for 'z' command and 'cd' alias)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+    # Use zoxide's z as the cd command for all shells
+    alias cd='z'
+fi
+
+# Mise - Initialize for all shells (needed for version management)
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi

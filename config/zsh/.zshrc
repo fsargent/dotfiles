@@ -54,6 +54,17 @@ export LESS="\
 --window=-4"
 
 # ------------------------------------------------------------------------------
+# Dotenv Plugin Configuration
+# ------------------------------------------------------------------------------
+
+# Auto-source .env files without prompting (for non-interactive environments like Cursor)
+export ZSH_DOTENV_PROMPT=false
+
+# Set cache directory to a valid location
+export ZSH_CACHE_DIR="$HOME/.cache/zsh"
+mkdir -p "$ZSH_CACHE_DIR"
+
+# ------------------------------------------------------------------------------
 # Antidote Plugin Manager
 # ------------------------------------------------------------------------------
 
