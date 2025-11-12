@@ -14,6 +14,8 @@ alias rb='cd ~/src/rb'
 alias size="du -hs ./* | sort -hr"
 alias zshedit='vim ~/.config/zsh/.zshrc'
 alias reload='source ~/.config/zsh/.zshrc'
+alias ga='git add'
+alias gd='git diff'
 alias gcm='git checkout main'
 alias grhh='git reset --hard HEAD'
 alias gs='git status'
@@ -42,31 +44,31 @@ killport() {
     echo "  killport 3000-3015   # Kill processes on ports 3000 through 3015"
     return 1
   fi
-  
+
   local input=$1
   local ports=()
   local killed_pids=()
   local total_killed=0
-  
+
   # Check if input contains a range (has a dash)
   if [[ $input == *-* ]]; then
     # Parse range
     local start_port=${input%-*}
     local end_port=${input#*-}
-    
+
     # Validate range
     if ! [[ "$start_port" =~ ^[0-9]+$ ]] || ! [[ "$end_port" =~ ^[0-9]+$ ]]; then
       echo "❌ Invalid port range format. Use: start_port-end_port (e.g., 3000-3015)"
       return 1
     fi
-    
+
     if [ $start_port -gt $end_port ]; then
       echo "❌ Start port must be less than or equal to end port"
       return 1
     fi
-    
+
     echo "🔍 Scanning ports $start_port-$end_port for running processes..."
-    
+
     # Generate port range
     for ((port=start_port; port<=end_port; port++)); do
       ports+=($port)
@@ -79,29 +81,29 @@ killport() {
     fi
     ports=($input)
   fi
-  
+
   # Process each port
   for port in "${ports[@]}"; do
     local pids=$(lsof -ti :$port 2>/dev/null)
-    
+
     if [ -n "$pids" ]; then
       echo "\n=== Port $port ==="
       lsof -i :$port 2>/dev/null
-      
+
       echo "Killing processes on port $port: $pids"
       kill -9 $pids 2>/dev/null
-      
+
       # Track killed PIDs (avoid duplicates)
       for pid in $pids; do
         if [[ ! " ${killed_pids[@]} " =~ " $pid " ]]; then
           killed_pids+=($pid)
         fi
       done
-      
+
       total_killed=$((total_killed + $(echo $pids | wc -w)))
     fi
   done
-  
+
   if [ $total_killed -eq 0 ]; then
     if [ ${#ports[@]} -eq 1 ]; then
       echo "No processes found running on port ${ports[0]}"
@@ -110,13 +112,13 @@ killport() {
     fi
     return 0
   fi
-  
+
   # Verify processes were killed
   sleep 1
   echo "\n📊 Summary:"
   echo "Total processes killed: $total_killed"
   echo "Unique PIDs killed: ${killed_pids[*]}"
-  
+
   # Check for any remaining processes
   local remaining_count=0
   for port in "${ports[@]}"; do
@@ -125,7 +127,7 @@ killport() {
       remaining_count=$((remaining_count + 1))
     fi
   done
-  
+
   if [ $remaining_count -eq 0 ]; then
     echo "✅ All processes successfully killed"
   else
