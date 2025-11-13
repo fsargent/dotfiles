@@ -203,3 +203,13 @@ git_main_branch() {
     echo master
   fi
 }
+
+# ------------------------------------------------------------------------------
+# Zoxide - MUST be at the end of .zshrc
+# ------------------------------------------------------------------------------
+# Initialize ONLY for interactive shells (guarded by [[ -o interactive ]] at top)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)" 2>/dev/null
+    # Use zoxide's z as the cd command
+    alias cd='z'
+fi

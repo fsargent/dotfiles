@@ -6,7 +6,7 @@ function add-alias() {
 
 alias amend='git commit --amend'
 alias pull='git pull'
-alias cd="z" # Added from .zshrc (Zoxide integration)
+alias cat="bat"
 alias ls="eza --icons=always" # Updated from .zshrc
 alias la="ls -a" # Note: This will now use the updated 'ls' alias above
 alias ll="ls -al" # Note: This will now use the updated 'ls' alias above
@@ -22,7 +22,7 @@ alias gs='git status'
 alias grs='git restore'
 alias grss='git restore --source'
 alias grst='git restore --staged'
-alias vim='nvim'
+alias vim='hx'
 alias '??'='gh copilot suggest'
 alias ka='sudo kanata -c ~/src/dotfiles/config/kanata/kanata.kbd'
 alias 'gopen'='gh pr view --web'
