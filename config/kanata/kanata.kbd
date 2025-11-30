@@ -164,7 +164,7 @@
         A-tab     S-9     A-left  up      A-right S-0     y       u       -       =       p       [       ]       ret
         caps    S-tab   left    down    right   tab     A-bspc  rsft    rmet    ralt    rctl    '       S-\
         lsft    /       rmet    rctl    lshft   `       }       n       S-M-`	S-C-tab C-tab   M-`    lrld
-        lctl            lalt lmet                       spc             rmet ralt
+        rctl            lalt lmet                       spc             rmet ralt
 )
 
 
