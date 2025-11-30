@@ -51,10 +51,10 @@ conflictStyle = zdiff3
 [alias]
 	ci = !git checkout $(git branch -a | fzf | xargs)
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [filter "lfs"]
 	smudge = git-lfs smudge -- %f

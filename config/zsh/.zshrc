@@ -204,6 +204,9 @@ git_main_branch() {
   fi
 }
 
+# direnv hook for automatic virtualenv activation
+eval "$(direnv hook zsh)"
+
 # ------------------------------------------------------------------------------
 # Zoxide - MUST be at the end of .zshrc
 # ------------------------------------------------------------------------------
