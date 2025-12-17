@@ -13,8 +13,18 @@ Before using these dotfiles, you will need to install Homebrew. You can install 
 After installing Homebrew, you will need to install the following dependencies:
 
 ```bash
-brew install eza git-delta ripgrep starship mise autojump prezto 1password trunk
+brew install eza git-delta ripgrep starship mise autojump 1password trunk fish
 ```
+
+### Shell Configuration
+
+This repository supports both Zsh and Fish shells. Fish is recommended for better performance and reliability.
+
+**To use Fish shell:**
+1. Install fish: `brew install fish`
+2. Add fish to `/etc/shells`: `echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells`
+3. Set fish as your default shell: `chsh -s /opt/homebrew/bin/fish`
+4. Run the setup script: `./setup.sh`
 
 ## Usage
 
@@ -74,6 +84,7 @@ This repository contains the following dotfiles:
      - `git/`: Directory containing Git configuration files.
      - `kanata/`: Directory containing Kanata configuration files.
      - `zsh/`: Directory containing Zsh configuration files.
+     - `fish/`: Directory containing Fish shell configuration files.
 - `setup.sh`: Script to set up the dotfiles.
 - `starship.toml`: Configuration file for Starship.
 

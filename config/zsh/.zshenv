@@ -40,3 +40,37 @@ fi
 if command -v mise >/dev/null 2>&1; then
     eval "$(mise activate zsh)"
 fi
+
+# ------------------------------------------------------------------------------
+# Load .env files for test environment variables
+# This loads .env from the registry project directory
+# ------------------------------------------------------------------------------
+
+load_env_file() {
+    local env_file="$1"
+    if [[ -f "$env_file" ]]; then
+        # Read .env file and export variables (handles quoted values)
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Skip comments and empty lines
+            [[ "$line" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "${line// }" ]] && continue
+
+            # Export the variable (handles KEY="value" and KEY=value formats)
+            if [[ "$line" =~ ^[[:space:]]*([^=]+)=(.*)$ ]]; then
+                local key="${match[1]// /}"
+                local value="${match[2]}"
+                # Remove quotes if present
+                value="${value#\"}"
+                value="${value%\"}"
+                value="${value#\'}"
+                value="${value%\'}"
+                export "$key=$value"
+            fi
+        done < "$env_file"
+    fi
+}
+
+# Load .env from the registry project directory if it exists
+if [[ -f "$HOME/src/snyk/registry/.env" ]]; then
+    load_env_file "$HOME/src/snyk/registry/.env"
+fi

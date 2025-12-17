@@ -216,3 +216,8 @@ if command -v zoxide >/dev/null 2>&1; then
     # Use zoxide's z as the cd command
     alias cd='z'
 fi
+
+# bun completions
+[ -s "/Users/fsargent/.bun/_bun" ] && source "/Users/fsargent/.bun/_bun"
+
+test -f /Users/fsargent/.cache/trunk/shell-hooks/zsh.rc && source /Users/fsargent/.cache/trunk/shell-hooks/zsh.rc;

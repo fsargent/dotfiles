@@ -154,7 +154,7 @@
 	tab     (multi q @.tp) (multi w @.tp) (multi e @.tp) (multi r @.tp) (multi t @.tp) (multi y @.tp) (multi u @.tp) (multi i @.tp) (multi o @.tp) (multi p @.tp) [       ]       ret
 	@ehyper   @a      @s      @d      @f      (multi g @.tp) (multi h @.tp) @j      @k      @l      @;      @'      \
 	lsft    \	(multi z @.tp) (multi x @.tp) (multi c @.tp) (multi v @.tp) (multi b @.tp) (multi n @.tp) (multi m @.tp) ,       .       /   rsft
-	lctl    lalt    lmet            @l_spc          rmet ralt
+	lctl    lalt    XX             @l_spc         XX ralt
 )
 
 
@@ -163,8 +163,8 @@
         `       1       2       3       4       5       6       7       8       9       0       -       =       bspc
         A-tab     S-9     A-left  up      A-right S-0     y       u       -       =       p       [       ]       ret
         caps    S-tab   left    down    right   tab     A-bspc  rsft    rmet    ralt    rctl    '       S-\
-        lsft    /       rmet    rctl    lshft   `       }       n       S-M-`	S-C-tab C-tab   M-`    lrld
-        rctl            lalt lmet                       spc             rmet ralt
+        lsft    /       S-M-`	S-C-tab C-tab   M-`       }       n       S-M-`	S-C-tab C-tab   M-`    lrld
+        lctl            lalt lmet                       spc             rmet ralt
 )
 
 
