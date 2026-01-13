@@ -111,7 +111,7 @@ alias grb='git rebase'
 alias grba='git rebase --abort'
 alias grbc='git rebase --continue'
 alias grbi='git rebase -i'
-alias grbm='git rebase master'
+alias grbm='git rebase main'
 alias grbs='git rebase --skip'
 alias grep='grep  --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}'
 alias grh='git reset HEAD'
@@ -146,11 +146,20 @@ alias gupv='git pull --rebase -v'
 alias gwch='git whatchanged -p --abbrev-commit --pretty=medium'
 alias gwip='git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit --no-verify -m "--wip-- [skip ci]"'
 alias gpfwl='git push --force-with-lease'
+alias gpf='git push --force-with-lease'  # shorter alias
+alias gds='git diff --staged'
+alias gsw='git switch'
+alias gswc='git switch --create'
 alias vim='hx'
 alias '??'='gh copilot suggest'
 alias ka='sudo kanata -c ~/src/dotfiles/config/kanata/kanata.kbd'
 alias 'gopen'='gh pr view --web'
 alias helix='hx'
+
+# Auto rebase: fetch latest and rebase current branch on origin/main
+arb() {
+  git fetch origin && git rebase origin/main
+}
 
 # Git Checkout Interactive function that works regardless of current directory's mise environment
 gci() {
