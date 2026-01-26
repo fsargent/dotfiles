@@ -13,7 +13,7 @@ alias ll="ls -al" # Note: This will now use the updated 'ls' alias above
 alias rb='cd ~/src/rb'
 alias size="du -hs ./* | sort -hr"
 alias zshedit='vim ~/.config/zsh/.zshrc'
-alias reload='source ~/.config/zsh/.zshrc'
+alias reload='source ~/.config/zsh/.zshrc' && source ~/.config/zsh/.zshenv
 alias ga='git add'
 alias gd='git diff'
 alias gcm='git checkout main'
@@ -150,6 +150,13 @@ alias gpf='git push --force-with-lease'  # shorter alias
 alias gds='git diff --staged'
 alias gsw='git switch'
 alias gswc='git switch --create'
+# Git worktree aliases
+alias gwt='git worktree'
+alias gwl='git worktree list'
+alias gwls='git worktree list --porcelain'
+alias gwr='git worktree remove'
+alias gwrf='git worktree remove --force'
+alias gwp='git worktree prune'
 alias vim='hx'
 alias '??'='gh copilot suggest'
 alias ka='sudo kanata -c ~/src/dotfiles/config/kanata/kanata.kbd'
@@ -166,6 +173,33 @@ gci() {
   # Use mise exec to run gci with the correct node environment
   # This will use the node version from your global mise config or a .tool-versions file
   mise exec node@latest -- npx git-checkout-interactive "$@"
+}
+
+# Git worktree add with automatic path creation
+# Usage: gwa <branch-name> [additional-git-worktree-add-args]
+# Creates worktree at ../<repo-name>.worktrees/<branch-name>
+gwa() {
+  if [ -z "$1" ]; then
+    echo "Usage: gwa <branch-name> [additional-git-worktree-add-args]"
+    echo "Example: gwa feature-branch"
+    return 1
+  fi
+
+  local branch_name="$1"
+  shift  # Remove first argument, keep rest for git worktree add
+
+  # Get the repository root directory name
+  local repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -z "$repo_root" ]; then
+    echo "Error: Not in a git repository"
+    return 1
+  fi
+
+  local repo_name=$(basename "$repo_root")
+  local worktree_path="../${repo_name}.worktrees/${branch_name}"
+
+  # Create the worktree
+  git worktree add "$worktree_path" "$branch_name" "$@"
 }
 
 # Kill process(es) running on a specific port or port range

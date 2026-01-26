@@ -13,17 +13,37 @@ setopt EXTENDED_HISTORY share_history hist_expire_dups_first hist_ignore_dups hi
 
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
-set -o vi
-bindkey -v '^?' backward-delete-char
+bindkey -e
+bindkey '^?' backward-delete-char
+bindkey '^[b' backward-word
+bindkey '^[f' forward-word
+bindkey '^[[1;3D' backward-word
+bindkey '^[[1;3C' forward-word
+bindkey '^[[1;9D' backward-word
+bindkey '^[[1;9C' forward-word
 WORDCHARS=${WORDCHARS//[-_.\/]/}
 
 # Aliases
 [[ -f ~/.config/zsh/.aliases ]] && source ~/.config/zsh/.aliases
 
-# PATH (interactive-only)
-export PATH="/Users/fsargent/.rd/bin:/opt/homebrew/Cellar/arm-none-eabi-gcc@8/8.5.0_2/bin:/opt/homebrew/Cellar/avr-gcc@8/8.5.0_2/bin:/opt/homebrew/opt/arm-none-eabi-binutils/bin:$PATH"
+# 1Password npm plugin (avoid ~/.npmrc token)
+[[ -f "$HOME/.config/op/plugins.sh" ]] && source "$HOME/.config/op/plugins.sh"
+
+# Override op's npm alias to use mise-managed npm
+# Must be after op plugins.sh which creates the npm alias
+unalias npm 2>/dev/null
+npm() {
+  mise exec node -- op plugin run -- npm "$@"
+}
+
+# PATH (interactive-only) - append to preserve mise shims priority
+export PATH="$PATH:/Users/fsargent/.rd/bin:/opt/homebrew/Cellar/arm-none-eabi-gcc@8/8.5.0_2/bin:/opt/homebrew/Cellar/avr-gcc@8/8.5.0_2/bin:/opt/homebrew/opt/arm-none-eabi-binutils/bin"
 
 export LESS="--chop-long-lines --HILITE-UNREAD --ignore-case --incsearch --jump-target=4 --LONG-PROMPT --no-init --quit-if-one-screen --RAW-CONTROL-CHARS --status-column --use-color --window=-4"
+
+# Cache dir (used for completions and tool init)
+_zsh_cache="$HOME/.cache/zsh"
+[[ -d "$_zsh_cache" ]] || mkdir -p "$_zsh_cache"
 
 # ------------------------------------------------------------------------------
 # Completions (cached)
@@ -31,15 +51,15 @@ export LESS="--chop-long-lines --HILITE-UNREAD --ignore-case --incsearch --jump-
 
 FPATH="/opt/homebrew/share/zsh/site-functions:${FPATH}"
 autoload -Uz compinit
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$_zsh_cache"
+ZSH_COMPDUMP="$_zsh_cache/.zcompdump"
 # Only regenerate once per day
-[[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]] && compinit || compinit -C
+[[ -n "$ZSH_COMPDUMP"(#qN.mh+24) ]] && compinit -d "$ZSH_COMPDUMP" || compinit -C -d "$ZSH_COMPDUMP"
 
 # ------------------------------------------------------------------------------
 # Cached tool initializations (regenerate with: zsh-regen-cache)
 # ------------------------------------------------------------------------------
-
-_zsh_cache="$HOME/.cache/zsh"
-[[ -d "$_zsh_cache" ]] || mkdir -p "$_zsh_cache"
 
 # Function to regenerate cache
 zsh-regen-cache() {
@@ -48,7 +68,6 @@ zsh-regen-cache() {
     fzf --zsh > "$_zsh_cache/fzf.zsh"
     direnv hook zsh > "$_zsh_cache/direnv.zsh"
     zoxide init zsh > "$_zsh_cache/zoxide.zsh"
-    mise activate zsh > "$_zsh_cache/mise.zsh"
     echo "Done. Restart shell to use cached init."
 }
 
@@ -66,7 +85,6 @@ _source_cached starship "starship init zsh"
 _source_cached fzf "fzf --zsh"
 _source_cached direnv "direnv hook zsh"
 _source_cached zoxide "zoxide init zsh"
-_source_cached mise "mise activate zsh"
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -80,12 +98,17 @@ git_main_branch() {
 # Plugins - deferred until first prompt for faster startup
 # ------------------------------------------------------------------------------
 
+# You Should Use configuration (must be set before plugin loads)
+export YSU_MESSAGE_FORMAT="$(tput setaf 1)Hey! I found this %alias_type for %command: %alias$(tput sgr0)"
+
 autoload -Uz add-zsh-hook
 _load_plugins() {
     [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
         source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
         source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    [[ -f /opt/homebrew/share/zsh-you-should-use/you-should-use.plugin.zsh ]] && \
+        source /opt/homebrew/share/zsh-you-should-use/you-should-use.plugin.zsh
     add-zsh-hook -d precmd _load_plugins
 }
 add-zsh-hook precmd _load_plugins
@@ -117,12 +140,12 @@ _fzf_comprun() {
 }
 
 # ------------------------------------------------------------------------------
-# Lazy-loaded tools
+# Lazy-loaded tools (unalias first to avoid conflicts)
 # ------------------------------------------------------------------------------
 
-fk() { unfunction fk; eval $(thefuck --alias fk); fk "$@"; }
-j() { unfunction j; [[ -f /opt/homebrew/etc/profile.d/autojump.sh ]] && . /opt/homebrew/etc/profile.d/autojump.sh; j "$@"; }
-op() { unfunction op; [[ -f "$HOME/.config/op/plugins.sh" ]] && source "$HOME/.config/op/plugins.sh"; op "$@"; }
+unalias fk 2>/dev/null; fk() { unfunction fk; eval $(thefuck --alias fk); fk "$@"; }
+unalias j 2>/dev/null; j() { unfunction j; [[ -f /opt/homebrew/etc/profile.d/autojump.sh ]] && . /opt/homebrew/etc/profile.d/autojump.sh; j "$@"; }
+unalias op 2>/dev/null; op() { unfunction op; [[ -f "$HOME/.config/op/plugins.sh" ]] && source "$HOME/.config/op/plugins.sh"; op "$@"; }
 
 # ------------------------------------------------------------------------------
 # Final setup
@@ -132,4 +155,12 @@ alias cd='z'
 
 # Optional completions
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
-[[ -f "$HOME/.cache/trunk/shell-hooks/zsh.rc" ]] && source "$HOME/.cache/trunk/shell-hooks/zsh.rc"
+
+# Trunk shell hooks disabled - too aggressive (runs on every prompt)
+# Run `trunk check` manually when needed instead
+# [[ -f "$HOME/.cache/trunk/shell-hooks/zsh.rc" ]] && source "$HOME/.cache/trunk/shell-hooks/zsh.rc"
+
+# Mise - using shims only (set in .zshenv) for speed and simplicity
+# Shims automatically respect .tool-versions and mise.toml files
+# Run `mise reshim` after installing new tools
+export GITHUB_PRIVATE_TOKEN="op://Private/GitHub Personal Access Token/credential"
