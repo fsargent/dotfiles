@@ -1,5 +1,5 @@
 [user]
-	email = felix.sargent@gmail.com
+	email = felix.sargent@snyk.io
 	name = Felix Sargent
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICsdLTaI/nCv9jwRIVoVe7TAw0k7Pn9XTOHsrFnoVEkX
 [includeIf "gitdir:~/src/snyk/"]

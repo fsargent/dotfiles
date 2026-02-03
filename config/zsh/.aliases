@@ -16,7 +16,6 @@ alias zshedit='vim ~/.config/zsh/.zshrc'
 alias reload='source ~/.config/zsh/.zshrc' && source ~/.config/zsh/.zshenv
 alias ga='git add'
 alias gd='git diff'
-alias gcm='git checkout main'
 alias grhh='git reset --hard HEAD'
 alias gs='git status'
 alias grs='git restore'
@@ -26,13 +25,45 @@ alias grst='git restore --staged'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
+# Get the default branch name for the current repository
+# Tries remote HEAD first, then falls back to checking for common branch names
+git_default_branch() {
+  # Try to get from remote HEAD (fastest, local lookup)
+  local branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+
+  if [ -n "$branch" ]; then
+    echo "$branch"
+    return
+  fi
+
+  # Fallback: check which common default branches exist on remote
+  for candidate in main master develop; do
+    if git show-ref --verify --quiet "refs/remotes/origin/$candidate" 2>/dev/null; then
+      echo "$candidate"
+      return
+    fi
+  done
+
+  # Last resort fallback
+  echo "main"
+}
+
+# Checkout default branch (auto-detects main/master/develop)
+gcm() {
+  git checkout "$(git_default_branch)"
+}
+
 alias g=git
 alias gaa='git add --all'
 alias gapa='git add --patch'
 alias gb='git branch'
 alias gba='git branch -a'
 alias gbd='git branch -d'
-alias gbda='git branch --no-color --merged | command grep -vE "^(\*|\s*(master|develop|dev)\s*$)" | command xargs -n 1 git branch -d'
+# Delete all merged branches except default and protected branches
+gbda() {
+  local default_branch=$(git_default_branch)
+  git branch --no-color --merged | command grep -vE "^(\*|\s*(${default_branch}|master|main|develop|dev)\s*$)" | command xargs -n 1 git branch -d
+}
 alias gbl='git blame -b -w'
 alias gbnm='git branch --no-merged'
 alias gbr='git branch --remote'
@@ -92,12 +123,21 @@ alias gloga='git log --oneline --decorate --graph --all'
 alias glol='git log --graph --pretty='\''%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'\'' --abbrev-commit'
 alias glola='git log --graph --pretty='\''%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'\'' --abbrev-commit --all'
 alias glp=_git_log_prettily
-alias glum='git pull upstream master'
+# Pull from upstream's default branch (auto-detects main/master/develop)
+glum() {
+gs  git pull upstream "$(git_default_branch)"
+}
 alias gm='git merge'
-alias gmom='git merge origin/master'
+# Merge origin's default branch (auto-detects main/master/develop)
+gmom() {
+  git merge "origin/$(git_default_branch)"
+}
 alias gmt='git mergetool --no-prompt'
 alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
-alias gmum='git merge upstream/master'
+# Merge upstream's default branch (auto-detects main/master/develop)
+gmum() {
+  git merge "upstream/$(git_default_branch)"
+}
 alias gp='git push'
 alias gpd='git push --dry-run'
 alias gpoat='git push origin --all && git push origin --tags'
@@ -111,7 +151,10 @@ alias grb='git rebase'
 alias grba='git rebase --abort'
 alias grbc='git rebase --continue'
 alias grbi='git rebase -i'
-alias grbm='git rebase main'
+# Rebase on default branch (auto-detects main/master/develop)
+grbm() {
+  git rebase "$(git_default_branch)"
+}
 alias grbs='git rebase --skip'
 alias grep='grep  --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}'
 alias grh='git reset HEAD'
@@ -163,9 +206,23 @@ alias ka='sudo kanata -c ~/src/dotfiles/config/kanata/kanata.kbd'
 alias 'gopen'='gh pr view --web'
 alias helix='hx'
 
-# Auto rebase: fetch latest and rebase current branch on origin/main
+# GAR (Google Artifact Registry) login via Workforce Identity Federation.
+# Creates login config at ~/.config/gcp/gcp-gar-viewer, then runs gcloud auth login.
+# Run `gcloud auth configure-docker us-docker.pkg.dev` once per machine for Docker pulls.
+gar-login() {
+  local config_dir=~/.config/gcp
+  local config_file="${config_dir}/gcp-gar-viewer"
+  mkdir -p "$config_dir"
+  gcloud iam workforce-pools create-login-config \
+    locations/global/workforcePools/polaris-pool-gar-viewer/providers/polaris-provider-gar-viewer \
+    --output-file="$config_file" &&
+    gcloud auth login --login-config="$config_file"
+}
+
+# Auto rebase: fetch latest and rebase current branch on origin's default branch
 arb() {
-  git fetch origin && git rebase origin/main
+  local default_branch=$(git_default_branch)
+  git fetch origin && git rebase "origin/${default_branch}"
 }
 
 # Git Checkout Interactive function that works regardless of current directory's mise environment

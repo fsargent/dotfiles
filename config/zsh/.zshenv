@@ -20,3 +20,6 @@ github_token() {
     [[ -z "$GITHUB_PRIVATE_TOKEN" ]] && export GITHUB_PRIVATE_TOKEN="$(security find-generic-password -a "$USER" -s "GitHub Token" -w 2>/dev/null)"
     echo "$GITHUB_PRIVATE_TOKEN"
 }
+export SNYK_INTERNAL_PROXY_CREDENTIALS='snyk-internal:xxxxxxxxxx'
+export SNYK_INTERNAL_BROKER_CREDENTIALS='snyk-services-user:xxxxxxxxxx'
+export SNYK_INTERNAL_PROXY_HOST='proxy.pre-prod-1.eu-west-1.polaris-pre-prod.snyk-internal.net'
