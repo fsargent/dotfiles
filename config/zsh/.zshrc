@@ -26,16 +26,6 @@ WORDCHARS=${WORDCHARS//[-_.\/]/}
 # Aliases
 [[ -f ~/.config/zsh/.aliases ]] && source ~/.config/zsh/.aliases
 
-# 1Password npm plugin (avoid ~/.npmrc token)
-[[ -f "$HOME/.config/op/plugins.sh" ]] && source "$HOME/.config/op/plugins.sh"
-
-# Override op's npm alias to use mise-managed npm
-# Must be after op plugins.sh which creates the npm alias
-unalias npm 2>/dev/null
-npm() {
-  mise exec node -- op plugin run -- npm "$@"
-}
-
 # PATH (interactive-only) - append to preserve mise shims priority
 export PATH="$PATH:/Users/fsargent/.rd/bin:/opt/homebrew/Cellar/arm-none-eabi-gcc@8/8.5.0_2/bin:/opt/homebrew/Cellar/avr-gcc@8/8.5.0_2/bin:/opt/homebrew/opt/arm-none-eabi-binutils/bin"
 
@@ -146,6 +136,14 @@ _fzf_comprun() {
 unalias fk 2>/dev/null; fk() { unfunction fk; eval $(thefuck --alias fk); fk "$@"; }
 unalias j 2>/dev/null; j() { unfunction j; [[ -f /opt/homebrew/etc/profile.d/autojump.sh ]] && . /opt/homebrew/etc/profile.d/autojump.sh; j "$@"; }
 unalias op 2>/dev/null; op() { unfunction op; [[ -f "$HOME/.config/op/plugins.sh" ]] && source "$HOME/.config/op/plugins.sh"; op "$@"; }
+
+# npm: resolve NPM_TOKEN from 1Password on first use
+unalias npm 2>/dev/null; npm() {
+    if [[ -z "${NPM_TOKEN:-}" ]]; then
+        export NPM_TOKEN=$(op read "op://Private/4gpqrum6xwtsyayue4jjcb7kgy/token" --no-newline 2>/dev/null)
+    fi
+    command npm "$@"
+}
 
 # ------------------------------------------------------------------------------
 # Final setup
