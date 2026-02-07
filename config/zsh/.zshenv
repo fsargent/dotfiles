@@ -9,7 +9,7 @@ export PNPM_HOME="/Users/fsargent/Library/pnpm"
 [[ ":$PATH:" != *":$PNPM_HOME:"* ]] && export PATH="$PNPM_HOME:$PATH"
 
 # Essential env vars
-export XDG_CONFIG_HOME="$HOME/.config/"
+export XDG_CONFIG_HOME="$HOME/.config"
 export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgreprc"
 export BAT_THEME="Catppuccin Latte"
 export TRUNK_TELEMETRY=OFF

@@ -55,7 +55,6 @@ export LESS="\
 --use-color \
 --window=-4"
 
-export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
 
 # zsh
 export ZSH="$HOME/.oh-my-zsh"

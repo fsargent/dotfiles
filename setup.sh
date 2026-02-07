@@ -496,6 +496,10 @@ main() {
         failed=$((failed + 1))
         failed_items="$failed_items\n  - Starship config"
     }
+    link_config "${PWD}/config/ripgreprc" ~/.config/ripgreprc "Ripgrep config" || {
+        failed=$((failed + 1))
+        failed_items="$failed_items\n  - Ripgrep config"
+    }
     link_config "${PWD}/config/zsh/.zshrc" ~/.zshrc ".zshrc" || {
         failed=$((failed + 1))
         failed_items="$failed_items\n  - .zshrc"
@@ -541,6 +545,9 @@ main() {
             fi
             if echo "$failed_items" | grep -q "Starship config"; then
                 link_config "${PWD}/starship.toml" ~/.config/starship.toml "Starship config" "yes" && fixed=$((fixed + 1))
+            fi
+            if echo "$failed_items" | grep -q "Ripgrep config"; then
+                link_config "${PWD}/config/ripgreprc" ~/.config/ripgreprc "Ripgrep config" "yes" && fixed=$((fixed + 1))
             fi
             if echo "$failed_items" | grep -q ".zshrc"; then
                 link_config "${PWD}/config/zsh/.zshrc" ~/.zshrc ".zshrc" "yes" && fixed=$((fixed + 1))
