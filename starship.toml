@@ -1,9 +1,8 @@
 add_newline = false
-# A minimal left prompt
-format = """$directory$character"""
+# Two-line prompt: git info first, path second
+format = """$git_branch$git_status$nodejs$python$golang$aws
+$directory$character"""
 palette = "catppuccin_mocha"
-# move the rest of the prompt to the right - selective modules only
-right_format = """$git_branch$git_status$nodejs$python$golang$aws"""
 command_timeout = 500
 
 # Reduce process spawning
@@ -28,7 +27,7 @@ success_symbol = '[➜](bold green)'
 '~/tests/starship-custom' = 'work-project'
 
 [git_branch]
-format =  '[$symbol$branch(:$remote_branch)]($style) '
+format = '[$symbol$branch(:$remote_branch)]($style) '
 
 [aws]
 format = '[$symbol(profile: "$profile" )(\(region: $region\) )]($style)'
@@ -45,7 +44,7 @@ disabled = true
 detect_files = ['Dockerfile']
 format = '[$symbol$context( \($namespace\))]($style) '
 contexts = [
-  { context_pattern = "arn:aws:eks:us-west-2:577926974532:cluster/zd-pvc-omer", style = "green", context_alias = "omerxx", symbol = " " },
+  #   { context_pattern = "arn:aws:eks:us-west-2:577926974532:cluster/zd-pvc-omer", style = "green", context_alias = "omerxx", symbol = " " },
 ]
 
 [docker_context]
@@ -58,7 +57,15 @@ format = ' [ $version]($style) '
 # Don't show virtual environment name
 python_binary = ['python', 'python3', 'python2']
 detect_extensions = ['py']
-detect_files = ['requirements.txt', '.python-version', 'pyproject.toml', 'Pipfile', 'tox.ini', 'setup.py', '__init__.py']
+detect_files = [
+  'requirements.txt',
+  '.python-version',
+  'pyproject.toml',
+  'Pipfile',
+  'tox.ini',
+  'setup.py',
+  '__init__.py',
+]
 detect_folders = []
 
 [package]

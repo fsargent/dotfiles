@@ -6,6 +6,9 @@
 # Core Setup
 # ------------------------------------------------------------------------------
 
+export VERTEXAI_PROJECT=aipril-455019
+export VERTEXAI_LOCATION=global
+
 export HISTFILE=$HOME/.zhistory
 export HISTSIZE=1000000000
 export SAVEHIST=$HISTSIZE
@@ -162,3 +165,23 @@ alias cd='z'
 # Shims automatically respect .tool-versions and mise.toml files
 # Run `mise reshim` after installing new tools
 export GITHUB_PRIVATE_TOKEN="op://Private/GitHub Personal Access Token/credential"
+#compdef gt
+###-begin-gt-completions-###
+#
+# yargs command completion script
+#
+# Installation: gt completion >> ~/.zshrc
+#    or gt completion >> ~/.zprofile on OSX.
+#
+_gt_yargs_completions()
+{
+  local reply
+  local si=$IFS
+  IFS=$'
+' reply=($(COMP_CWORD="$((CURRENT-1))" COMP_LINE="$BUFFER" COMP_POINT="$CURSOR" gt --get-yargs-completions "${words[@]}"))
+  IFS=$si
+  _describe 'values' reply
+}
+compdef _gt_yargs_completions gt
+###-end-gt-completions-###
+

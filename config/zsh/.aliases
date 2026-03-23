@@ -206,6 +206,26 @@ alias ka='sudo kanata -c ~/src/dotfiles/config/kanata/kanata.kbd'
 alias 'gopen'='gh pr view --web'
 alias helix='hx'
 
+# Default Graphite create/submit to AI-generated metadata unless overridden.
+gt() {
+  if [ "$1" = "submit" ] || [ "$1" = "create" ]; then
+    local subcommand="$1"
+    shift
+
+    for arg in "$@"; do
+      if [ "$arg" = "--ai" ] || [ "$arg" = "--no-ai" ]; then
+        command gt "$subcommand" "$@"
+        return
+      fi
+    done
+
+    command gt "$subcommand" --ai "$@"
+    return
+  fi
+
+  command gt "$@"
+}
+
 # GAR (Google Artifact Registry) login via Workforce Identity Federation.
 # Creates login config at ~/.config/gcp/gcp-gar-viewer, then runs gcloud auth login.
 # Run `gcloud auth configure-docker us-docker.pkg.dev` once per machine for Docker pulls.

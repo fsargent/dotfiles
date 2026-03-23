@@ -42,3 +42,4 @@ idea/
 .wiki/
 .cursor
 PR_DESCRIPTION.md
+.cursor/

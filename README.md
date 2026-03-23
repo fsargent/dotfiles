@@ -21,6 +21,7 @@ brew install eza git-delta ripgrep starship mise autojump 1password trunk fish
 This repository supports both Zsh and Fish shells. Fish is recommended for better performance and reliability.
 
 **To use Fish shell:**
+
 1. Install fish: `brew install fish`
 2. Add fish to `/etc/shells`: `echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells`
 3. Set fish as your default shell: `chsh -s /opt/homebrew/bin/fish`
@@ -44,10 +45,10 @@ After running the `setup.sh` script, you may need to restart your terminal or ot
 - Superwhisper
 - Homerow
 - Setapp
-  - In Your Face
-  - Bartender
-  - Cleanshot X
-  - Soulver Calculator
+     - In Your Face
+     - Bartender
+     - Cleanshot X
+     - Soulver Calculator
 
 ## Homebrew Casks
 
@@ -82,6 +83,7 @@ This repository contains the following dotfiles:
 - `.gitignore`: Configuration file for Git.
 - `config/`: Directory containing configuration files for various applications.
      - `git/`: Directory containing Git configuration files.
+     - `ghostty/`: Directory containing Ghostty configuration files and themes.
      - `kanata/`: Directory containing Kanata configuration files.
      - `zsh/`: Directory containing Zsh configuration files.
      - `fish/`: Directory containing Fish shell configuration files.
