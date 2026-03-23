@@ -28,9 +28,8 @@ lint:
                 - taplo@0.10.0
                 - trufflehog@3.92.5
 actions:
-        disabled:
+        enabled:
                 - trunk-announce
                 - trunk-check-pre-push
                 - trunk-fmt-pre-commit
-        enabled:
                 - trunk-upgrade-available

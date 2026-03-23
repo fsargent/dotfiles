@@ -16,17 +16,6 @@ After installing Homebrew, you will need to install the following dependencies:
 brew install eza git-delta ripgrep starship mise autojump 1password trunk fish
 ```
 
-### Shell Configuration
-
-This repository supports both Zsh and Fish shells. Fish is recommended for better performance and reliability.
-
-**To use Fish shell:**
-
-1. Install fish: `brew install fish`
-2. Add fish to `/etc/shells`: `echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells`
-3. Set fish as your default shell: `chsh -s /opt/homebrew/bin/fish`
-4. Run the setup script: `./setup.sh`
-
 ## Usage
 
 To use these dotfiles, you can clone this repository and then run the `setup.sh` script. This script will create symbolic links to the dotfiles in your home directory.
@@ -39,7 +28,7 @@ cd dotfiles
 
 After running the `setup.sh` script, you may need to restart your terminal or other applications for the changes to take effect.
 
-## Favuorite Apps (non terminal)
+## Favourite Apps (non terminal)
 
 - Raycast
 - Superwhisper
@@ -61,7 +50,6 @@ After running the `setup.sh` script, you may need to restart your terminal or ot
 - font-geist-mono-nerd-font
 - font-jetbrains-mono-nerd-font
 - font-meslo-lg-nerd-font
-- font-monaspace
 - gcloud-cli
 - ghostty
 - keycastr
