@@ -1,4 +1,5 @@
 .cache_ggshield/
+.npmrc
 .zcompdump*
 .cursor/
 .zsh_history
