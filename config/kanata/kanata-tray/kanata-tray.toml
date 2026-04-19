@@ -1,0 +1,12 @@
+'$schema' = 'https://raw.githubusercontent.com/rszyma/kanata-tray/main/doc/config_schema.json'
+
+[general]
+allow_concurrent_presets = false
+
+[defaults]
+kanata_executable = '~/src/dotfiles/config/kanata/kanata-root.sh'
+kanata_config = '~/src/dotfiles/config/kanata/kanata.kbd'
+autorestart_on_crash = false
+
+[presets.'main']
+autorun = false
