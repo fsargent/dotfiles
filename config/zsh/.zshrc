@@ -140,13 +140,6 @@ unalias fk 2>/dev/null; fk() { unfunction fk; eval $(thefuck --alias fk); fk "$@
 unalias j 2>/dev/null; j() { unfunction j; [[ -f /opt/homebrew/etc/profile.d/autojump.sh ]] && . /opt/homebrew/etc/profile.d/autojump.sh; j "$@"; }
 unalias op 2>/dev/null; op() { unfunction op; [[ -f "$HOME/.config/op/plugins.sh" ]] && source "$HOME/.config/op/plugins.sh"; op "$@"; }
 
-# npm: resolve NPM_TOKEN from 1Password on first use
-unalias npm 2>/dev/null; npm() {
-    if [[ -z "${NPM_TOKEN:-}" ]]; then
-        export NPM_TOKEN=$(op read "op://Private/4gpqrum6xwtsyayue4jjcb7kgy/token" --no-newline 2>/dev/null)
-    fi
-    command npm "$@"
-}
 
 # ------------------------------------------------------------------------------
 # Final setup
@@ -185,3 +178,4 @@ _gt_yargs_completions()
 compdef _gt_yargs_completions gt
 ###-end-gt-completions-###
 
+source ~/.config/op/plugins.sh

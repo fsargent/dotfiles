@@ -10,7 +10,8 @@ export PNPM_HOME="/Users/fsargent/Library/pnpm"
 
 # Essential env vars
 export XDG_CONFIG_HOME="$HOME/.config"
-export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgreprc"
+# Ripgrep errors if RIPGREP_CONFIG_PATH points at a missing file; only set when present.
+[[ -f "$XDG_CONFIG_HOME/ripgreprc" ]] && export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgreprc"
 export BAT_THEME="Catppuccin Latte"
 export TRUNK_TELEMETRY=OFF
 export _ZO_DOCTOR=0
@@ -23,3 +24,10 @@ github_token() {
 export SNYK_INTERNAL_PROXY_CREDENTIALS='snyk-internal:xxxxxxxxxx'
 export SNYK_INTERNAL_BROKER_CREDENTIALS='snyk-services-user:xxxxxxxxxx'
 export SNYK_INTERNAL_PROXY_HOST='proxy.pre-prod-1.eu-west-1.polaris-pre-prod.snyk-internal.net'
+
+# Anthropic / Claude setup
+# Set the internal proxy URL
+export ANTHROPIC_BASE_URL=https://llm-proxy.c-a.eu-west-1.polaris-prod-bo-dr3d3-1.aws.snyk-internal.net
+
+# Disable experimental betas - required for our setup
+CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1

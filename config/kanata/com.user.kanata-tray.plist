@@ -7,7 +7,8 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/opt/homebrew/bin/kanata-tray</string>
+        <string>sudo</string>
+        <string>/opt/homebrew/Cellar/kanata-tray/0.8.0/bin/kanata-tray</string>
         <string>--log-level</string>
         <string>2</string>
     </array>
@@ -23,7 +24,16 @@
     <key>RunAtLoad</key>
     <true/>
 
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
+
     <key>ProcessType</key>
     <string>Interactive</string>
+
+    <key>ThrottleInterval</key>
+    <integer>20</integer>
 </dict>
 </plist>

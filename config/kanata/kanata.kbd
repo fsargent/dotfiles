@@ -133,16 +133,15 @@
         (j k    )       A-bspc  $combo-time-long first-release  ()
         (m ,    )       bspc    $combo-time-long first-release  ()
         (    l ;)       del     $combo-time-long all-released  ()
+        (  , .  )       ret     $combo-time-short all-released  ()
 
-        (  k l  )       ret     $combo-time-short all-released  ()
-        (j k l ;)       ret     $combo-time-short all-released  ()
+        (j k l  )       ret     $combo-time-short all-released  ()
         (j     ;)       caps    $combo-time-long all-released  ()
 
         (z x    )       M-x     $combo-time-long all-released  ()
         (x c    )       M-c     $combo-time-long all-released  ()
         (c v    )       M-v     $combo-time-long all-released  ()
 
-        ( , .   )       -       $combo-time-long all-released  ()
         ( m , . )       S--       $combo-time-long all-released  ()
         ( . /   )       =       $combo-time-long all-released  ()
         ( , . / )       S-=       $combo-time-long all-released  ()

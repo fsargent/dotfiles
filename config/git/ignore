@@ -1,5 +1,6 @@
 # General
 .DS_Store
+.cache_ggshield/
 .AppleDouble
 .LSOverride
 .prettiercache
@@ -43,3 +44,5 @@ idea/
 .cursor
 PR_DESCRIPTION.md
 .cursor/
+_bmad-output/
+_bmad/
