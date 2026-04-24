@@ -46,3 +46,5 @@ PR_DESCRIPTION.md
 .cursor/
 _bmad-output/
 _bmad/
+
+**/.claude/settings.local.json

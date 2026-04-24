@@ -21,6 +21,9 @@ alias gs='git status'
 alias grs='git restore'
 alias grss='git restore --source'
 alias grst='git restore --staged'
+grm() {
+  git restore --source "$(git_default_branch)" -- "$@"
+}
 # Navigation shortcuts
 alias ...='cd ../..'
 alias ....='cd ../../..'
@@ -48,9 +51,16 @@ git_default_branch() {
   echo "main"
 }
 
-# Checkout default branch (auto-detects main/master/develop)
+# Checkout default branch, or restore paths from it when args are given
 gcm() {
-  git checkout "$(git_default_branch)"
+  local default_branch
+  default_branch="$(git_default_branch)"
+
+  if [ "$#" -eq 0 ]; then
+    git checkout "$default_branch"
+  else
+    git checkout "$default_branch" -- "$@"
+  fi
 }
 
 alias g=git
