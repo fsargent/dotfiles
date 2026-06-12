@@ -10,11 +10,13 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Required Homebrew formulas (packages)
-REQUIRED_FORMULAS="eza git-delta ripgrep starship mise autojump 1password trunk fish"
+REQUIRED_FORMULAS="eza git-delta ripgrep starship mise autojump 1password trunk fish rm-improved \
+bat fzf direnv zoxide antidote zsh-autosuggestions zsh-syntax-highlighting zsh-you-should-use \
+neovim helix gh withgraphite/tap/graphite"
 
 # Map formula names to their command names (for formulas where name != command)
 # Format: "formula_name:command_name"
-FORMULA_COMMAND_MAP="git-delta:delta 1password:op"
+FORMULA_COMMAND_MAP="git-delta:delta 1password:op rm-improved:rip withgraphite/tap/graphite:gt"
 
 # Required Homebrew casks (GUI applications)
 REQUIRED_CASKS="1password-cli adguard-vpn cursor discord font-fira-code-nerd-font font-geist-mono font-geist-mono-nerd-font font-jetbrains-mono-nerd-font font-meslo-lg-nerd-font font-monaspace gcloud-cli ghostty keycastr raycast setapp spotify steam tailscale visual-studio-code warp"
@@ -519,12 +521,14 @@ main() {
 	track_link "${PWD}/config/zsh" ~/.config/zsh "Zsh config"
 	track_link "${PWD}/config/fish" ~/.config/fish "Fish config"
 	track_link "${PWD}/config/kanata" ~/.config/kanata "Kanata config"
+	track_link "${PWD}/config/npm" ~/.config/npm "npm config"
 	track_link "${PWD}/config/nvim" ~/.config/nvim "Neovim config"
 	track_link "${PWD}/config/helix" ~/.config/helix "Helix config"
 	track_link "${PWD}/config/ghostty/config" ~/.config/ghostty/config "Ghostty config"
 	track_link "${PWD}/config/ghostty/themes" ~/.config/ghostty/themes "Ghostty themes"
 	track_link "${PWD}/starship.toml" ~/.config/starship.toml "Starship config"
 	track_link "${PWD}/config/ripgreprc" ~/.config/ripgreprc "Ripgrep config"
+	track_link "${PWD}/config/npm/npmrc" ~/.npmrc ".npmrc"
 	track_link "${PWD}/config/zsh/.zshrc" ~/.zshrc ".zshrc"
 	track_link "${PWD}/config/zsh/.zshenv" ~/.zshenv ".zshenv"
 
@@ -548,12 +552,14 @@ main() {
 			attempt_fix_link "Zsh config" "${PWD}/config/zsh" ~/.config/zsh "Zsh config"
 			attempt_fix_link "Fish config" "${PWD}/config/fish" ~/.config/fish "Fish config"
 			attempt_fix_link "Kanata config" "${PWD}/config/kanata" ~/.config/kanata "Kanata config"
+			attempt_fix_link "npm config" "${PWD}/config/npm" ~/.config/npm "npm config"
 			attempt_fix_link "Neovim config" "${PWD}/config/nvim" ~/.config/nvim "Neovim config"
 			attempt_fix_link "Helix config" "${PWD}/config/helix" ~/.config/helix "Helix config"
 			attempt_fix_link "Ghostty config" "${PWD}/config/ghostty/config" ~/.config/ghostty/config "Ghostty config"
 			attempt_fix_link "Ghostty themes" "${PWD}/config/ghostty/themes" ~/.config/ghostty/themes "Ghostty themes"
 			attempt_fix_link "Starship config" "${PWD}/starship.toml" ~/.config/starship.toml "Starship config"
 			attempt_fix_link "Ripgrep config" "${PWD}/config/ripgreprc" ~/.config/ripgreprc "Ripgrep config"
+			attempt_fix_link ".npmrc" "${PWD}/config/npm/npmrc" ~/.npmrc ".npmrc"
 			attempt_fix_link ".zshrc" "${PWD}/config/zsh/.zshrc" ~/.zshrc ".zshrc"
 			attempt_fix_link ".zshenv" "${PWD}/config/zsh/.zshenv" ~/.zshenv ".zshenv"
 

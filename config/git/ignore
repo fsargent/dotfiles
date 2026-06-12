@@ -4,6 +4,8 @@
 .AppleDouble
 .LSOverride
 .prettiercache
+.agents
+.claude
 
 # Icon must end with two \r
 Icon
@@ -48,3 +50,4 @@ _bmad-output/
 _bmad/
 
 **/.claude/settings.local.json
+.vscode/

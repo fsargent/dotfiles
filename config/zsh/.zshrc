@@ -79,6 +79,51 @@ _source_cached fzf "fzf --zsh"
 _source_cached direnv "direnv hook zsh"
 _source_cached zoxide "zoxide init zsh"
 
+# zoxide 0.9.x does not fuzzy-match punctuation in one-piece queries well:
+# `z electionresults.uk/` misses paths that `z electionresults uk` finds.
+# Keep the stock behavior first, then retry single path-ish queries split on
+# punctuation so domain-like and hyphenated directory names are easier to jump to.
+z() {
+    __zoxide_doctor
+    if [[ "$#" -eq 0 ]]; then
+        __zoxide_cd ~
+    elif [[ "$#" -eq 1 ]] && { [[ -d "$1" ]] || [[ "$1" = '-' ]] || [[ "$1" =~ ^[-+][0-9]+$ ]]; }; then
+        __zoxide_cd "$1"
+    elif [[ "$#" -eq 2 ]] && [[ "$1" = "--" ]]; then
+        __zoxide_cd "$2"
+    else
+        local current_pwd result
+        current_pwd="$(__zoxide_pwd)"
+        result="$(command zoxide query --exclude "$current_pwd" -- "$@" 2>/dev/null)" && __zoxide_cd "$result" && return
+
+        if [[ "$#" -eq 1 ]]; then
+            local query="$1"
+            while [[ "$query" == */ ]]; do
+                query="${query%/}"
+            done
+
+            local normalized="${query//[^A-Za-z0-9_]/ }"
+            if [[ "$normalized" != "$query" ]]; then
+                local -a fallback_words
+                fallback_words=( ${=normalized} )
+                if [[ "${#fallback_words[@]}" -gt 0 ]]; then
+                    local candidate
+                    local -a candidates
+                    candidates=( "${(@f)$(command zoxide query --list --exclude "$current_pwd" -- "${fallback_words[@]}" 2>/dev/null)}" )
+                    if [[ "${#candidates[@]}" -gt 0 && -n "$candidates[1]" ]]; then
+                        for candidate in "${candidates[@]}"; do
+                            [[ "${candidate:t}" == "$query" ]] && __zoxide_cd "$candidate" && return
+                        done
+                        __zoxide_cd "$candidates[1]" && return
+                    fi
+                fi
+            fi
+        fi
+
+        command zoxide query --exclude "$current_pwd" -- "$@" >/dev/null
+    fi
+}
+
 # ------------------------------------------------------------------------------
 # Functions
 # ------------------------------------------------------------------------------
