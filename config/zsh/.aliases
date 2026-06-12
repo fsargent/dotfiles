@@ -7,6 +7,13 @@ function add-alias() {
 alias amend='git commit --amend'
 alias pull='git pull'
 alias cat="bat"
+
+# Safer rm: send to the graveyard instead of unlinking. Use `\rm` to bypass.
+if command -v rip >/dev/null 2>&1; then
+  alias rm='rip'
+  alias unrm='rip --unbury'         # restore the last thing you ripped
+  alias graveyard='rip --seance'    # list what was ripped from the current dir
+fi
 alias ls="eza --icons=always" # Updated from .zshrc
 alias la="ls -a" # Note: This will now use the updated 'ls' alias above
 alias ll="ls -al" # Note: This will now use the updated 'ls' alias above
@@ -14,6 +21,11 @@ alias rb='cd ~/src/rb'
 alias size="du -hs ./* | sort -hr"
 alias zshedit='vim ~/.config/zsh/.zshrc'
 alias reload='source ~/.config/zsh/.zshrc' && source ~/.config/zsh/.zshenv
+
+# npm/pnpm/npx auth via 1Password — wrapper lives in npm-op.zsh so it can also be
+# sourced from .zshenv (non-interactive shells). Guarded against double-sourcing.
+[[ -f "${ZDOTDIR:-$HOME/.config/zsh}/npm-op.zsh" ]] && source "${ZDOTDIR:-$HOME/.config/zsh}/npm-op.zsh"
+
 alias ga='git add'
 alias gd='git diff'
 alias grhh='git reset --hard HEAD'

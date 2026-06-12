@@ -16,6 +16,15 @@ export BAT_THEME="Catppuccin Latte"
 export TRUNK_TELEMETRY=OFF
 export _ZO_DOCTOR=0
 
+# rip (rm-improved): persist the graveyard under XDG_DATA_HOME so deletions
+# survive reboots — the default /tmp/graveyard-$USER is wiped by macOS.
+export GRAVEYARD="${XDG_DATA_HOME:-$HOME/.local/share}/graveyard"
+
+# npm/pnpm/npx auth via 1Password. Sourced here (not only .zshrc) so
+# non-interactive shells — scripts, CI-likes, coding agents — also route
+# registry commands through `op run`. Idempotent; .aliases sources it too.
+[[ -f "$ZDOTDIR/npm-op.zsh" ]] && source "$ZDOTDIR/npm-op.zsh"
+
 # Lazy GitHub token
 github_token() {
     [[ -z "$GITHUB_PRIVATE_TOKEN" ]] && export GITHUB_PRIVATE_TOKEN="$(security find-generic-password -a "$USER" -s "GitHub Token" -w 2>/dev/null)"
