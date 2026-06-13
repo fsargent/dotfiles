@@ -135,7 +135,8 @@
         (    l ;)       del     $combo-time-long all-released  ()
         (  , .  )       ret     $combo-time-short all-released  ()
 
-        (j k l  )       ret     $combo-time-short all-released  ()
+        (j k l ;)       ret     $combo-time-short all-released  ()
+        (j k l)         ret     $combo-time-short all-released  ()
         (j     ;)       caps    $combo-time-long all-released  ()
 
         (z x    )       M-x     $combo-time-long all-released  ()
@@ -153,7 +154,7 @@
 	tab     (multi q @.tp) (multi w @.tp) (multi e @.tp) (multi r @.tp) (multi t @.tp) (multi y @.tp) (multi u @.tp) (multi i @.tp) (multi o @.tp) (multi p @.tp) [       ]       ret
 	@ehyper   @a      @s      @d      @f      (multi g @.tp) (multi h @.tp) @j      @k      @l      @;      @'      \
 	lsft    \	(multi z @.tp) (multi x @.tp) (multi c @.tp) (multi v @.tp) (multi b @.tp) (multi n @.tp) (multi m @.tp) ,       .       /   rsft
-	lctl    lalt    XX             @l_spc         XX ralt
+	lctl    lalt    lmet           @l_spc         rmet ralt
 )
 
 
