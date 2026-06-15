@@ -224,7 +224,7 @@ alias gwrf='git worktree remove --force'
 alias gwp='git worktree prune'
 alias vim='hx'
 alias '??'='gh copilot suggest'
-alias ka='sudo kanata -c ~/src/dotfiles/config/kanata/kanata.kbd'
+alias ka='~/.config/kanata/kanata-root.sh --cfg ~/.config/kanata/kanata.kbd'
 alias 'gopen'='gh pr view --web'
 alias helix='hx'
 

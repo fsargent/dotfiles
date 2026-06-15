@@ -1,117 +1,56 @@
-# Kanata as a macOS System Service
+# Kanata with kanata-tray on macOS
 
-This document explains how to run Kanata as a system-wide background service on macOS using `launchd`. This setup runs Kanata as the `root` user, ensuring it works correctly even at the login screen.
+This setup runs [kanata-tray](https://github.com/rszyma/kanata-tray) as a user LaunchAgent. The tray app shows a menu bar icon for starting, stopping, and switching kanata configs. Kanata itself runs via `kanata-root.sh`, which invokes it with `sudo` (required for keyboard capture on macOS).
 
-A management script, `kanata-service.sh`, is provided to simplify the process.
+## Prerequisites
 
-**IMPORTANT**: All commands for the management script must be run with `sudo`.
+Install both binaries:
 
-## Features
+```bash
+brew install kanata kanata-tray
+```
 
-- **System-Wide Service**: Runs as `root` via `launchd`.
-- **Logging**: Stores logs in `/var/log/kanata.log`.
-- **Log Rotation**: Automatically rotates logs when they reach 1MB, keeping 5 archived logs. This is handled by `newsyslog`.
+Run `./setup.sh` (or link manually) so `~/.config/kanata` points at this directory. `./setup.sh` can also install kanata-tray when prompted.
 
-## Quick Start with `kanata-service.sh`
+## Quick Start
 
-1. **Make the script executable:**
-   You only need to do this once.
+```bash
+cd config/kanata
+chmod +x kanata-tray-service.sh kanata-root.sh
+./kanata-tray-service.sh install
+```
 
-      ```bash
-      chmod +x kanata-service.sh
-      ```
+The install command will:
 
-2. **Install and start the service:**
-   This command will copy the `com.user.kanata.plist` file to `/Library/LaunchDaemons`, install the log rotation configuration, and load the service.
-      ```bash
-      sudo ./kanata-service.sh install
-      ```
+1. Remove the legacy system LaunchDaemon (`com.user.kanata`) if present
+2. Install a passwordless sudo rule for the kanata binary
+3. Install and start the `com.user.kanata-tray` LaunchAgent
 
-Kanata is now running as a system-wide background service.
+## Managing the Service
 
-## Managing the Service with the Script
+```bash
+./kanata-tray-service.sh status
+./kanata-tray-service.sh restart
+./kanata-tray-service.sh logs
+./kanata-tray-service.sh stop
+./kanata-tray-service.sh uninstall
+```
 
-The `kanata-service.sh` script provides several commands to manage the service. Remember to use `sudo` for all of them.
+Logs are written to `~/Library/Logs/kanata-tray/`.
 
-- **Install the service:**
+## Configuration
 
-     ```bash
-     sudo ./kanata-service.sh install
-     ```
+| File                           | Purpose                                                  |
+| ------------------------------ | -------------------------------------------------------- |
+| `kanata-tray/kanata-tray.toml` | Tray presets, autorun, icons                             |
+| `kanata.kbd`                   | Kanata keymap                                            |
+| `kanata-root.sh`               | Wrapper that runs kanata with sudo                       |
+| `com.user.kanata-tray.plist`   | LaunchAgent template (paths filled in by install script) |
 
-- **Uninstall the service:**
-  This stops the service and removes the `.plist` and log rotation configuration files.
+After changing `kanata-tray.toml`, restart the tray or use the menu bar to reload.
 
-     ```bash
-     sudo ./kanata-service.sh uninstall
-     ```
+## Notes
 
-- **Start the service:**
-
-     ```bash
-     sudo ./kanata-service.sh start
-     ```
-
-- **Stop the service:**
-
-     ```bash
-     sudo ./kanata-service.sh stop
-     ```
-
-- **Restart the service:**
-
-     ```bash
-     sudo ./kanata-service.sh restart
-     ```
-
-- **Check the service status:**
-
-     ```bash
-     sudo ./kanata-service.sh status
-     ```
-
-- **Follow the logs:**
-     ```bash
-     sudo ./kanata-service.sh logs
-     ```
-
-## Manual Setup (without the script)
-
-If you prefer to set up the service manually, follow these steps:
-
-1. **Place the Service File**:
-   Copy the `com.user.kanata.plist` file to `/Library/LaunchDaemons/`.
-
-      ```bash
-      sudo cp com.user.kanata.plist /Library/LaunchDaemons/
-      ```
-
-2. **Place the Log Rotation File**:
-   Copy the `kanata.conf` file to `/etc/newsyslog.d/`.
-
-      ```bash
-      sudo cp kanata.conf /etc/newsyslog.d/
-      ```
-
-3. **Load the Service**:
-   Use `launchctl` with `sudo` to load the service.
-   `bash
-sudo launchctl load /Library/LaunchDaemons/com.user.kanata.plist
-`
-
----
-
-## Comparison with Linux (`systemd`) Approach
-
-The setup in this repository is specific to macOS and its `launchd` service manager. It differs significantly from common Linux setups that use `systemd`.
-
-| Feature             | This macOS (`launchd`) Solution                                                                       | Common Linux (`systemd`) Solution                                                                                            |
-| :------------------ | :---------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
-| **Platform**        | **macOS**                                                                                             | **Linux** (e.g., Ubuntu, Arch)                                                                                               |
-| **Service Manager** | `launchd`                                                                                             | `systemd`                                                                                                                    |
-| **Configuration**   | `.plist` files in `/Library/LaunchDaemons`                                                            | `.service` files in `/etc/systemd/system`                                                                                    |
-| **Management Tool** | `launchctl` (wrapped by our script)                                                                   | `systemctl`                                                                                                                  |
-| **Security Model**  | Runs as `root` user, which is a standard and often necessary practice for low-level daemons on macOS. | Often uses a dedicated, unprivileged user (e.g., `kanata`) and `systemd`'s advanced sandboxing features for higher security. |
-| **Device Access**   | Handled by macOS permissions system.                                                                  | Often requires `udev` rules to grant a specific user access to `/dev/uinput`.                                                |
-
-In summary, while the end goal is the same (running Kanata as a service), the implementation details are fundamentally different and specific to each operating system. This solution provides an idiomatic and robust way to manage Kanata on macOS.
+- The tray runs as your user (menu bar visibility). Only kanata runs as root.
+- If you upgrade kanata via Homebrew, re-run `./kanata-tray-service.sh install` to refresh the sudoers hash.
+- The LaunchAgent uses `/opt/homebrew/bin/kanata-tray` or whatever `which kanata-tray` returns — not a hardcoded Cellar path.

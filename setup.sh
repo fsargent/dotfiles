@@ -457,6 +457,70 @@ attempt_fix_link() {
 	fi
 }
 
+# Function to set up kanata-tray LaunchAgent (macOS only)
+setup_kanata_tray() {
+	if [[ $(uname) != Darwin ]]; then
+		return 0
+	fi
+
+	local kanata_dir="${PWD}/config/kanata"
+	local kanata_service="${kanata_dir}/kanata-tray-service.sh"
+	local kanata_root="${kanata_dir}/kanata-root.sh"
+
+	printf "\n${YELLOW}Kanata keyboard remapping (macOS)${NC}\n"
+	printf "${BLUE}Would you like to set up kanata-tray? (y/n): ${NC}"
+	read -r response
+	if [[ ${response} != "y" ]] && [[ ${response} != "Y" ]]; then
+		printf "${YELLOW}Skipping kanata-tray setup${NC}\n"
+		return 0
+	fi
+
+	if [[ ! -L ${HOME}/.config/kanata ]] && [[ ! -d ${HOME}/.config/kanata ]]; then
+		printf "${RED}✗${NC} Kanata config is not linked at ~/.config/kanata\n"
+		printf "${YELLOW}Re-run setup after the Kanata symlink is in place.${NC}\n"
+		return 1
+	fi
+
+	local missing_packages=""
+	if ! command_exists kanata; then
+		missing_packages=" kanata"
+	fi
+	if ! command_exists kanata-tray; then
+		missing_packages="${missing_packages} kanata-tray"
+	fi
+
+	if [[ -n ${missing_packages} ]]; then
+		printf "${YELLOW}Missing Homebrew packages:${missing_packages}${NC}\n"
+		printf "${BLUE}Install them now? (y/n): ${NC}"
+		read -r brew_response
+		if [[ ${brew_response} == "y" ]] || [[ ${brew_response} == "Y" ]]; then
+			ensure_brew_in_path
+			# shellcheck disable=SC2086
+			brew install ${missing_packages} || {
+				printf "${RED}✗${NC} Failed to install kanata packages\n"
+				return 1
+			}
+		else
+			printf "${YELLOW}Skipping kanata-tray service install (binaries missing)${NC}\n"
+			return 0
+		fi
+	fi
+
+	if [[ ! -x ${kanata_service} ]]; then
+		chmod +x "${kanata_service}" "${kanata_root}"
+	fi
+
+	printf "${BLUE}Installing kanata-tray LaunchAgent (requires sudo)...${NC}\n"
+	if "${kanata_service}" install; then
+		printf "${GREEN}✓${NC} kanata-tray installed\n"
+		return 0
+	fi
+
+	printf "${RED}✗${NC} kanata-tray install failed\n"
+	printf "${YELLOW}Run manually: ${kanata_service} install${NC}\n"
+	return 1
+}
+
 # Main setup flow
 main() {
 	printf "\n${BLUE}╔════════════════════════════════════════╗${NC}\n"
@@ -531,6 +595,8 @@ main() {
 	track_link "${PWD}/config/npm/npmrc" ~/.npmrc ".npmrc"
 	track_link "${PWD}/config/zsh/.zshrc" ~/.zshrc ".zshrc"
 	track_link "${PWD}/config/zsh/.zshenv" ~/.zshenv ".zshenv"
+
+	setup_kanata_tray || true
 
 	# Report results
 	printf "\n"
