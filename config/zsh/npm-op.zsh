@@ -14,8 +14,34 @@ _NPM_OP_WRAPPER_LOADED=1
 # Override NPM_OP_ENV_FILE if the env file lives elsewhere.
 export NPM_OP_ENV_FILE="${NPM_OP_ENV_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/npm/1password.env}"
 
+_npm_op_saved_refs=()
+
+# op run resolves every op:// reference in the shell environment, not only the
+# env file. Temporarily unset unrelated references (e.g. GITHUB_PRIVATE_TOKEN)
+# so npm auth is not blocked by a stale vault path elsewhere in dotfiles.
+_npm_op_strip_op_refs() {
+  _npm_op_saved_refs=()
+  local var val
+  for var in ${(k)parameters}; do
+    [[ ${parameters[$var]} == *export* ]] || continue
+    val="${(P)var}"
+    if [[ -n "$val" && "$val" == op://* ]]; then
+      _npm_op_saved_refs+=("$var=$val")
+      unset "$var"
+    fi
+  done
+}
+
+_npm_op_restore_op_refs() {
+  local entry
+  for entry in "${_npm_op_saved_refs[@]}"; do
+    export "$entry"
+  done
+  _npm_op_saved_refs=()
+}
+
 _npm_op_run() {
-  if [[ -n "${NPM_TOKEN:-}" ]]; then
+  if [[ -n "${NPM_TOKEN:-}" && "${NPM_TOKEN}" != op://* ]]; then
     command "$@"
     return
   fi
@@ -30,7 +56,11 @@ _npm_op_run() {
     return 1
   fi
 
+  _npm_op_strip_op_refs
   op run --env-file "$NPM_OP_ENV_FILE" -- "$@"
+  local ret=$?
+  _npm_op_restore_op_refs
+  return $ret
 }
 
 _npm_needs_auth() {
