@@ -64,6 +64,16 @@ load_launch_agent() {
 	launchctl load "${DEST_PLIST_PATH}" 2>/dev/null
 }
 
+stop_launch_agent() {
+	set +e
+	bootout_launch_agent
+	local bootout_status=$?
+	if [[ ${bootout_status} -ne 0 ]]; then
+		unload_launch_agent
+	fi
+	set -e
+}
+
 remove_old_system_daemon() {
 	if [[ ! -f ${OLD_DAEMON_PLIST} ]]; then
 		return 0
@@ -123,7 +133,9 @@ install_service() {
 	echo "Installing kanata-tray LaunchAgent..."
 	render_plist "${kanata_tray_bin}" >"${DEST_PLIST_PATH}"
 
-	bootout_launch_agent || true
+	set +e
+	bootout_launch_agent
+	set -e
 
 	set +e
 	bootstrap_launch_agent
@@ -149,7 +161,7 @@ install_service() {
 
 uninstall_service() {
 	echo "Uninstalling kanata-tray LaunchAgent..."
-	bootout_launch_agent || unload_launch_agent || true
+	stop_launch_agent
 	rm -f "${DEST_PLIST_PATH}"
 	sudo rm -f "${SUDOERS_PATH}"
 	echo "kanata-tray LaunchAgent removed."
@@ -194,7 +206,7 @@ stop_service() {
 		echo "Service not installed."
 		exit 1
 	fi
-	bootout_launch_agent || unload_launch_agent || true
+	stop_launch_agent
 	echo "kanata-tray stopped."
 }
 

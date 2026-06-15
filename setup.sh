@@ -9,6 +9,37 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Print helpers (avoid SC2059: variables in printf format strings)
+say() {
+	printf '%b\n' "$1"
+}
+
+ask() {
+	printf '%b' "$1"
+}
+
+apply_brew_shellenv() {
+	local brew_prefix="$1"
+	local shellenv_output
+
+	shellenv_output="$("${brew_prefix}/bin/brew" shellenv)"
+	eval "${shellenv_output}"
+}
+
+apply_brew_shellenv_optional() {
+	local brew_prefix="$1"
+	local shellenv_output
+
+	set +e
+	shellenv_output="$("${brew_prefix}/bin/brew" shellenv 2>/dev/null)"
+	local shellenv_status=$?
+	set -e
+	if [[ ${shellenv_status} -ne 0 ]]; then
+		return 0
+	fi
+	eval "${shellenv_output}"
+}
+
 # Required Homebrew formulas (packages)
 REQUIRED_FORMULAS="eza git-delta ripgrep starship mise autojump 1password trunk fish rm-improved \
 bat fzf direnv zoxide antidote zsh-autosuggestions zsh-syntax-highlighting zsh-you-should-use \
@@ -56,12 +87,12 @@ add_shell_to_etc_shells() {
 	fi
 
 	# Add shell to /etc/shells (requires sudo)
-	printf "\n${YELLOW}Adding ${shell_path} to /etc/shells (requires sudo)...${NC}\n"
+	say "\n${YELLOW}Adding ${shell_path} to /etc/shells (requires sudo)...${NC}"
 	if echo "${shell_path}" | sudo tee -a /etc/shells >/dev/null 2>&1; then
-		printf "${GREEN}✓${NC} Added ${shell_path} to /etc/shells\n"
+		say "${GREEN}✓${NC} Added ${shell_path} to /etc/shells"
 		return 0
 	else
-		printf "${RED}✗${NC} Failed to add ${shell_path} to /etc/shells\n"
+		say "${RED}✗${NC} Failed to add ${shell_path} to /etc/shells"
 		return 1
 	fi
 }
@@ -72,27 +103,32 @@ change_shell() {
 	local current_shell="${SHELL}"
 
 	if [[ ${shell_path} == "${current_shell}" ]]; then
-		printf "${GREEN}✓${NC} Already using ${shell_path}\n"
+		say "${GREEN}✓${NC} Already using ${shell_path}"
 		return 0
 	fi
 
 	# Ensure shell is in /etc/shells
 	if ! grep -Fxq "${shell_path}" /etc/shells 2>/dev/null; then
-		if ! add_shell_to_etc_shells "${shell_path}"; then
-			printf "${RED}Cannot change shell: ${shell_path} is not in /etc/shells${NC}\n"
+		local add_shell_status
+		set +e
+		add_shell_to_etc_shells "${shell_path}"
+		add_shell_status=$?
+		set -e
+		if [[ ${add_shell_status} -ne 0 ]]; then
+			say "${RED}Cannot change shell: ${shell_path} is not in /etc/shells${NC}"
 			return 1
 		fi
 	fi
 
-	printf "\n${YELLOW}Changing default shell to ${shell_path}...${NC}\n"
-	printf "${BLUE}You will be prompted for your password.${NC}\n"
+	say "\n${YELLOW}Changing default shell to ${shell_path}...${NC}"
+	say "${BLUE}You will be prompted for your password.${NC}"
 
 	if chsh -s "${shell_path}"; then
-		printf "${GREEN}✓${NC} Shell changed successfully!\n"
-		printf "${YELLOW}Note: The change will take effect in new terminal sessions.${NC}\n"
+		say "${GREEN}✓${NC} Shell changed successfully!"
+		say "${YELLOW}Note: The change will take effect in new terminal sessions.${NC}"
 		return 0
 	else
-		printf "${RED}✗${NC} Failed to change shell\n"
+		say "${RED}✗${NC} Failed to change shell"
 		return 1
 	fi
 }
@@ -105,37 +141,37 @@ prompt_shell_selection() {
 	find_available_shells
 	available_shells="${REPLY}"
 
-	printf "\n${YELLOW}Current shell: ${current_shell}${NC}\n"
-	printf "${BLUE}Would you like to change your default shell? (y/n): ${NC}"
+	say "\n${YELLOW}Current shell: ${current_shell}${NC}"
+	ask "${BLUE}Would you like to change your default shell? (y/n): ${NC}"
 	read -r response
 
 	if [[ ${response} != "y" ]] && [[ ${response} != "Y" ]]; then
-		printf "${YELLOW}Skipping shell change${NC}\n"
+		say "${YELLOW}Skipping shell change${NC}"
 		return 0
 	fi
 
-	printf "\n${YELLOW}Available shells:${NC}\n"
+	say "\n${YELLOW}Available shells:${NC}"
 	local count=1
 	local shell_list=""
 	for shell_path in ${available_shells}; do
 		local shell_name=""
 		shell_name=$(basename "${shell_path}")
-		printf "  ${count}) ${shell_path} (${shell_name})\n"
+		say "  ${count}) ${shell_path} (${shell_name})"
 		shell_list="${shell_list} ${shell_path}"
 		count=$((count + 1))
 	done
 
-	printf "\n${BLUE}Select a shell (1-$((count - 1))) or press Enter to skip: ${NC}"
+	ask "\n${BLUE}Select a shell (1-$((count - 1))) or press Enter to skip: ${NC}"
 	read -r selection
 
 	if [[ -z ${selection} ]]; then
-		printf "${YELLOW}Skipping shell change${NC}\n"
+		say "${YELLOW}Skipping shell change${NC}"
 		return 0
 	fi
 
 	# Validate selection
 	if ! echo "${selection}" | grep -qE '^[0-9]+$'; then
-		printf "${RED}Invalid selection${NC}\n"
+		say "${RED}Invalid selection${NC}"
 		return 1
 	fi
 
@@ -150,7 +186,7 @@ prompt_shell_selection() {
 	done
 
 	if [[ -z ${selected_shell} ]]; then
-		printf "${RED}Invalid selection${NC}\n"
+		say "${RED}Invalid selection${NC}"
 		return 1
 	fi
 
@@ -159,46 +195,62 @@ prompt_shell_selection() {
 
 # Function to check if Homebrew is installed
 check_homebrew() {
-	if command_exists brew; then
-		printf "${GREEN}✓${NC} Homebrew is installed\n"
+	local brew_status
+
+	set +e
+	command -v brew >/dev/null 2>&1
+	brew_status=$?
+	set -e
+	if [[ ${brew_status} -eq 0 ]]; then
+		say "${GREEN}✓${NC} Homebrew is installed"
 		return 0
-	else
-		printf "${RED}✗${NC} Homebrew is not installed\n"
-		return 1
 	fi
+
+	say "${RED}✗${NC} Homebrew is not installed"
+	return 1
 }
 
 # Function to install Homebrew
 install_homebrew() {
-	printf "\n${YELLOW}Installing Homebrew...${NC}\n"
+	say "\n${YELLOW}Installing Homebrew...${NC}"
 	printf "This will run: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n"
-	printf "${BLUE}Press Enter to continue or Ctrl+C to cancel...${NC}\n"
+	ask "${BLUE}Press Enter to continue or Ctrl+C to cancel...${NC}"
 	read -r
-	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	local install_script
+	install_script="$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	/bin/bash -c "${install_script}"
 
 	# Add Homebrew to PATH
 	# Apple Silicon Macs
 	if [[ -d "/opt/homebrew/bin" ]]; then
 		export PATH="/opt/homebrew/bin:${PATH}"
-		eval "$(/opt/homebrew/bin/brew shellenv)"
+		apply_brew_shellenv "/opt/homebrew"
 	# Intel Macs
 	elif [[ -d "/usr/local/bin" ]]; then
 		export PATH="/usr/local/bin:${PATH}"
-		eval "$(/usr/local/bin/brew shellenv)"
+		apply_brew_shellenv "/usr/local"
 	fi
 }
 
 # Function to ensure brew is in PATH
 ensure_brew_in_path() {
-	if ! command_exists brew; then
-		# Try to add Homebrew to PATH
-		if [[ -d "/opt/homebrew/bin" ]]; then
-			export PATH="/opt/homebrew/bin:${PATH}"
-			eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null || true
-		elif [[ -d "/usr/local/bin" ]]; then
-			export PATH="/usr/local/bin:${PATH}"
-			eval "$(/usr/local/bin/brew shellenv)" 2>/dev/null || true
-		fi
+	local brew_status
+
+	set +e
+	command -v brew >/dev/null 2>&1
+	brew_status=$?
+	set -e
+	if [[ ${brew_status} -eq 0 ]]; then
+		return 0
+	fi
+
+	# Try to add Homebrew to PATH
+	if [[ -d "/opt/homebrew/bin" ]]; then
+		export PATH="/opt/homebrew/bin:${PATH}"
+		apply_brew_shellenv_optional "/opt/homebrew"
+	elif [[ -d "/usr/local/bin" ]]; then
+		export PATH="/usr/local/bin:${PATH}"
+		apply_brew_shellenv_optional "/usr/local"
 	fi
 }
 
@@ -287,62 +339,72 @@ is_cask_installed() {
 # Function to check and install missing formulas
 check_and_install_formulas() {
 	local missing_formulas=""
+	local formula_status
 
-	printf "\n${YELLOW}Checking required Homebrew formulas...${NC}\n"
+	say "\n${YELLOW}Checking required Homebrew formulas...${NC}"
 	for formula in ${REQUIRED_FORMULAS}; do
-		if is_formula_installed "${formula}"; then
-			printf "${GREEN}✓${NC} ${formula} is installed\n"
+		set +e
+		is_formula_installed "${formula}"
+		formula_status=$?
+		set -e
+		if [[ ${formula_status} -eq 0 ]]; then
+			say "${GREEN}✓${NC} ${formula} is installed"
 		else
-			printf "${RED}✗${NC} ${formula} is missing\n"
+			say "${RED}✗${NC} ${formula} is missing"
 			missing_formulas="${missing_formulas} ${formula}"
 		fi
 	done
 
 	if [[ -n ${missing_formulas} ]]; then
-		printf "\n${YELLOW}Missing formulas:${missing_formulas}${NC}\n"
-		printf "${BLUE}Would you like to install them? (y/n): ${NC}"
+		say "\n${YELLOW}Missing formulas:${missing_formulas}${NC}"
+		ask "${BLUE}Would you like to install them? (y/n): ${NC}"
 		read -r response
 		if [[ ${response} == "y" ]] || [[ ${response} == "Y" ]]; then
 			ensure_brew_in_path
-			printf "\n${YELLOW}Installing missing formulas...${NC}\n"
+			say "\n${YELLOW}Installing missing formulas...${NC}"
 			# Install all missing formulas in one command
-			brew install "${missing_formulas}" || printf "${RED}Some formulas failed to install${NC}\n"
+			brew install "${missing_formulas}" || say "${RED}Some formulas failed to install${NC}"
 		else
-			printf "${YELLOW}Skipping formula installation${NC}\n"
+			say "${YELLOW}Skipping formula installation${NC}"
 		fi
 	else
-		printf "${GREEN}✓ All required formulas are installed${NC}\n"
+		say "${GREEN}✓ All required formulas are installed${NC}"
 	fi
 }
 
 # Function to check and install missing casks
 check_and_install_casks() {
 	local missing_casks=""
+	local cask_status
 
-	printf "\n${YELLOW}Checking required Homebrew casks...${NC}\n"
+	say "\n${YELLOW}Checking required Homebrew casks...${NC}"
 	for cask in ${REQUIRED_CASKS}; do
-		if is_cask_installed "${cask}"; then
-			printf "${GREEN}✓${NC} ${cask} is installed\n"
+		set +e
+		is_cask_installed "${cask}"
+		cask_status=$?
+		set -e
+		if [[ ${cask_status} -eq 0 ]]; then
+			say "${GREEN}✓${NC} ${cask} is installed"
 		else
-			printf "${RED}✗${NC} ${cask} is missing\n"
+			say "${RED}✗${NC} ${cask} is missing"
 			missing_casks="${missing_casks} ${cask}"
 		fi
 	done
 
 	if [[ -n ${missing_casks} ]]; then
-		printf "\n${YELLOW}Missing casks:${missing_casks}${NC}\n"
-		printf "${BLUE}Would you like to install them? (y/n): ${NC}"
+		say "\n${YELLOW}Missing casks:${missing_casks}${NC}"
+		ask "${BLUE}Would you like to install them? (y/n): ${NC}"
 		read -r response
 		if [[ ${response} == "y" ]] || [[ ${response} == "Y" ]]; then
 			ensure_brew_in_path
-			printf "\n${YELLOW}Installing missing casks...${NC}\n"
+			say "\n${YELLOW}Installing missing casks...${NC}"
 			# Install all missing casks in one command
-			brew install --cask "${missing_casks}" || printf "${RED}Some casks failed to install${NC}\n"
+			brew install --cask "${missing_casks}" || say "${RED}Some casks failed to install${NC}"
 		else
-			printf "${YELLOW}Skipping cask installation${NC}\n"
+			say "${YELLOW}Skipping cask installation${NC}"
 		fi
 	else
-		printf "${GREEN}✓ All required casks are installed${NC}\n"
+		say "${GREEN}✓ All required casks are installed${NC}"
 	fi
 }
 
@@ -352,40 +414,48 @@ link_config() {
 	local dest="$2"
 	local name="$3"
 	local fix_automatically="${4-}" # Optional: "yes" to fix automatically
+	local delta_available=0
 
 	if [[ -e ${dest} ]]; then
 		if [[ -L ${dest} ]]; then
 			# It's already a symlink
 			current_target=$(readlink "${dest}")
 			if [[ ${current_target} == "${src}" ]]; then
-				printf "${GREEN}✓${NC} ${name} already linked correctly\n"
+				say "${GREEN}✓${NC} ${name} already linked correctly"
 				return 0
 			else
-				printf "${YELLOW}⚠${NC} ${name} symlink points to wrong target\n"
-				printf "  Current: ${current_target}\n"
-				printf "  Expected: ${src}\n"
+				say "${YELLOW}⚠${NC} ${name} symlink points to wrong target"
+				say "  Current: ${current_target}"
+				say "  Expected: ${src}"
 				return 1
 			fi
 		else
 			# File/dir exists but is NOT a symlink
-			printf "${RED}✗${NC} ${name} exists but is NOT a symlink\n"
-			printf "  Location: ${dest}\n"
-			printf "  Expected symlink target: ${src}\n"
+			say "${RED}✗${NC} ${name} exists but is NOT a symlink"
+			say "  Location: ${dest}"
+			say "  Expected symlink target: ${src}"
 
 			# Show diff using delta if both exist and delta is available
-			if [[ -e ${src} ]] && command_exists delta; then
+			set +e
+			command -v delta >/dev/null 2>&1
+			local delta_status=$?
+			set -e
+			if [[ ${delta_status} -eq 0 ]]; then
+				delta_available=1
+			fi
+			if [[ -e ${src} ]] && [[ ${delta_available} -eq 1 ]]; then
 				if [[ -f ${dest} ]] && [[ -f ${src} ]]; then
-					printf "\n${BLUE}File differences:${NC}\n"
+					say "\n${BLUE}File differences:${NC}"
 					diff -u "${dest}" "${src}" 2>/dev/null | delta 2>/dev/null || true
 				elif [[ -d ${dest} ]] && [[ -d ${src} ]]; then
-					printf "\n${BLUE}Directory differences:${NC}\n"
+					say "\n${BLUE}Directory differences:${NC}"
 					diff -u "${dest}" "${src}" 2>/dev/null | delta 2>/dev/null || true
 				fi
 			fi
 
 			# Ask if user wants to fix it (unless fix_automatically is set)
 			if [[ ${fix_automatically} != "yes" ]]; then
-				printf "\n${BLUE}Would you like to backup and replace it with a symlink? (y/n): ${NC}"
+				ask "\n${BLUE}Would you like to backup and replace it with a symlink? (y/n): ${NC}"
 				read -r response
 				if [[ ${response} != "y" ]] && [[ ${response} != "Y" ]]; then
 					return 1
@@ -393,29 +463,30 @@ link_config() {
 			fi
 
 			# Backup and replace
-			local backup_dest="${dest}.backup.$(date +%s)"
+			local backup_dest
+			backup_dest="${dest}.backup.$(date +%s)"
 			if mv "${dest}" "${backup_dest}" 2>/dev/null; then
-				printf "${YELLOW}  Backed up to: ${backup_dest}${NC}\n"
+				say "${YELLOW}  Backed up to: ${backup_dest}${NC}"
 				if ln -s "${src}" "${dest}"; then
-					printf "${GREEN}✓${NC} ${name} linked successfully (backup created)\n"
+					say "${GREEN}✓${NC} ${name} linked successfully (backup created)"
 					return 0
 				else
-					printf "${RED}✗${NC} Failed to create symlink, restoring backup...\n"
+					say "${RED}✗${NC} Failed to create symlink, restoring backup..."
 					mv "${backup_dest}" "${dest}" 2>/dev/null
 					return 1
 				fi
 			else
-				printf "${RED}✗${NC} Failed to backup ${dest}\n"
+				say "${RED}✗${NC} Failed to backup ${dest}"
 				return 1
 			fi
 		fi
 	else
 		# Doesn't exist, create the symlink
 		if ln -s "${src}" "${dest}"; then
-			printf "${GREEN}✓${NC} ${name} linked successfully\n"
+			say "${GREEN}✓${NC} ${name} linked successfully"
 			return 0
 		else
-			printf "${RED}✗${NC} Failed to create symlink for ${name}\n"
+			say "${RED}✗${NC} Failed to create symlink for ${name}"
 			return 1
 		fi
 	fi
@@ -459,7 +530,9 @@ attempt_fix_link() {
 
 # Function to set up kanata-tray LaunchAgent (macOS only)
 setup_kanata_tray() {
-	if [[ $(uname) != Darwin ]]; then
+	local os_name kanata_ok tray_ok install_status
+	os_name="$(uname)"
+	if [[ ${os_name} != Darwin ]]; then
 		return 0
 	fi
 
@@ -467,41 +540,47 @@ setup_kanata_tray() {
 	local kanata_service="${kanata_dir}/kanata-tray-service.sh"
 	local kanata_root="${kanata_dir}/kanata-root.sh"
 
-	printf "\n${YELLOW}Kanata keyboard remapping (macOS)${NC}\n"
-	printf "${BLUE}Would you like to set up kanata-tray? (y/n): ${NC}"
+	say "\n${YELLOW}Kanata keyboard remapping (macOS)${NC}"
+	ask "${BLUE}Would you like to set up kanata-tray? (y/n): ${NC}"
 	read -r response
 	if [[ ${response} != "y" ]] && [[ ${response} != "Y" ]]; then
-		printf "${YELLOW}Skipping kanata-tray setup${NC}\n"
+		say "${YELLOW}Skipping kanata-tray setup${NC}"
 		return 0
 	fi
 
 	if [[ ! -L ${HOME}/.config/kanata ]] && [[ ! -d ${HOME}/.config/kanata ]]; then
-		printf "${RED}✗${NC} Kanata config is not linked at ~/.config/kanata\n"
-		printf "${YELLOW}Re-run setup after the Kanata symlink is in place.${NC}\n"
+		say "${RED}✗${NC} Kanata config is not linked at ~/.config/kanata"
+		say "${YELLOW}Re-run setup after the Kanata symlink is in place.${NC}"
 		return 1
 	fi
 
 	local missing_packages=""
-	if ! command_exists kanata; then
+	set +e
+	command_exists kanata
+	kanata_ok=$?
+	command_exists kanata-tray
+	tray_ok=$?
+	set -e
+	if [[ ${kanata_ok} -ne 0 ]]; then
 		missing_packages=" kanata"
 	fi
-	if ! command_exists kanata-tray; then
+	if [[ ${tray_ok} -ne 0 ]]; then
 		missing_packages="${missing_packages} kanata-tray"
 	fi
 
 	if [[ -n ${missing_packages} ]]; then
-		printf "${YELLOW}Missing Homebrew packages:${missing_packages}${NC}\n"
-		printf "${BLUE}Install them now? (y/n): ${NC}"
+		say "${YELLOW}Missing Homebrew packages:${missing_packages}${NC}"
+		ask "${BLUE}Install them now? (y/n): ${NC}"
 		read -r brew_response
 		if [[ ${brew_response} == "y" ]] || [[ ${brew_response} == "Y" ]]; then
 			ensure_brew_in_path
 			# shellcheck disable=SC2086
 			brew install ${missing_packages} || {
-				printf "${RED}✗${NC} Failed to install kanata packages\n"
+				say "${RED}✗${NC} Failed to install kanata packages"
 				return 1
 			}
 		else
-			printf "${YELLOW}Skipping kanata-tray service install (binaries missing)${NC}\n"
+			say "${YELLOW}Skipping kanata-tray service install (binaries missing)${NC}"
 			return 0
 		fi
 	fi
@@ -510,44 +589,57 @@ setup_kanata_tray() {
 		chmod +x "${kanata_service}" "${kanata_root}"
 	fi
 
-	printf "${BLUE}Installing kanata-tray LaunchAgent (requires sudo)...${NC}\n"
-	if "${kanata_service}" install; then
-		printf "${GREEN}✓${NC} kanata-tray installed\n"
+	say "${BLUE}Installing kanata-tray LaunchAgent (requires sudo)...${NC}"
+	set +e
+	"${kanata_service}" install
+	install_status=$?
+	set -e
+	if [[ ${install_status} -eq 0 ]]; then
+		say "${GREEN}✓${NC} kanata-tray installed"
 		return 0
 	fi
 
-	printf "${RED}✗${NC} kanata-tray install failed\n"
-	printf "${YELLOW}Run manually: ${kanata_service} install${NC}\n"
+	say "${RED}✗${NC} kanata-tray install failed"
+	say "${YELLOW}Run manually: ${kanata_service} install${NC}"
 	return 1
 }
 
 # Main setup flow
 main() {
-	printf "\n${BLUE}╔════════════════════════════════════════╗${NC}\n"
-	printf "${BLUE}║     Dotfiles Setup Script              ║${NC}\n"
-	printf "${BLUE}╚════════════════════════════════════════╝${NC}\n\n"
+	say "\n${BLUE}╔════════════════════════════════════════╗${NC}"
+	say "${BLUE}║     Dotfiles Setup Script              ║${NC}"
+	say "${BLUE}╚════════════════════════════════════════╝${NC}\n"
 
 	# Ensure brew is in PATH before checking
 	ensure_brew_in_path
 
 	# Ask if user wants to check Homebrew apps first
-	printf "${BLUE}Would you like to check and install Homebrew packages first? (y/n): ${NC}"
+	ask "${BLUE}Would you like to check and install Homebrew packages first? (y/n): ${NC}"
 	read -r check_brew_response
 	if [[ ${check_brew_response} == "y" ]] || [[ ${check_brew_response} == "Y" ]]; then
 		# Check for Homebrew
-		if ! check_homebrew; then
-			printf "\n${YELLOW}Homebrew is required to install dependencies.${NC}\n"
-			printf "${BLUE}Would you like to install Homebrew now? (y/n): ${NC}"
+		local brew_check_status
+		set +e
+		check_homebrew
+		brew_check_status=$?
+		set -e
+		if [[ ${brew_check_status} -ne 0 ]]; then
+			say "\n${YELLOW}Homebrew is required to install dependencies.${NC}"
+			ask "${BLUE}Would you like to install Homebrew now? (y/n): ${NC}"
 			read -r response
 			if [[ ${response} == "y" ]] || [[ ${response} == "Y" ]]; then
 				install_homebrew
 				# Verify installation
-				if ! check_homebrew; then
-					printf "${RED}Homebrew installation failed. Please install manually and run this script again.${NC}\n"
+				set +e
+				check_homebrew
+				brew_check_status=$?
+				set -e
+				if [[ ${brew_check_status} -ne 0 ]]; then
+					say "${RED}Homebrew installation failed. Please install manually and run this script again.${NC}"
 					exit 1
 				fi
 			else
-				printf "${RED}Cannot proceed without Homebrew. Exiting.${NC}\n"
+				say "${RED}Cannot proceed without Homebrew. Exiting.${NC}"
 				exit 1
 			fi
 		fi
@@ -556,15 +648,15 @@ main() {
 		check_and_install_formulas
 
 		# Ask about casks (optional, as they're GUI apps)
-		printf "\n${YELLOW}Would you like to check and install GUI applications (casks)? (y/n): ${NC}"
+		ask "\n${YELLOW}Would you like to check and install GUI applications (casks)? (y/n): ${NC}"
 		read -r response
 		if [[ ${response} == "y" ]] || [[ ${response} == "Y" ]]; then
 			check_and_install_casks
 		else
-			printf "${YELLOW}Skipping cask installation${NC}\n"
+			say "${YELLOW}Skipping cask installation${NC}"
 		fi
 	else
-		printf "${YELLOW}Skipping Homebrew package checks${NC}\n"
+		say "${YELLOW}Skipping Homebrew package checks${NC}"
 	fi
 
 	# Prompt for shell selection
@@ -574,7 +666,7 @@ main() {
 	mkdir -p ~/.config
 	mkdir -p ~/.config/ghostty
 
-	printf "\n${YELLOW}Setting up dotfiles symlinks...${NC}\n\n"
+	say "\n${YELLOW}Setting up dotfiles symlinks...${NC}\n"
 
 	# Track failures and failed items
 	local failed=0
@@ -596,21 +688,23 @@ main() {
 	track_link "${PWD}/config/zsh/.zshrc" ~/.zshrc ".zshrc"
 	track_link "${PWD}/config/zsh/.zshenv" ~/.zshenv ".zshenv"
 
-	setup_kanata_tray || true
+	set +e
+	setup_kanata_tray
+	set -e
 
 	# Report results
-	printf "\n"
+	say ""
 	if [[ ${failed} -eq 0 ]]; then
-		printf "${GREEN}✓ All symlinks set up successfully!${NC}\n"
-		printf "\n${GREEN}Setup complete! You may need to restart your terminal for changes to take effect.${NC}\n"
+		say "${GREEN}✓ All symlinks set up successfully!${NC}"
+		say "\n${GREEN}Setup complete! You may need to restart your terminal for changes to take effect.${NC}"
 		exit 0
 	else
-		printf "${RED}✗ Setup completed with ${failed} failure(s)${NC}\n"
-		printf "${YELLOW}Failed items:${failed_items}${NC}\n"
-		printf "\n${BLUE}Would you like to try fixing the failed symlinks automatically? (y/n): ${NC}"
+		say "${RED}✗ Setup completed with ${failed} failure(s)${NC}"
+		say "${YELLOW}Failed items:${failed_items}${NC}"
+		ask "\n${BLUE}Would you like to try fixing the failed symlinks automatically? (y/n): ${NC}"
 		read -r fix_response
 		if [[ ${fix_response} == "y" ]] || [[ ${fix_response} == "Y" ]]; then
-			printf "\n${YELLOW}Attempting to fix failed symlinks...${NC}\n\n"
+			say "\n${YELLOW}Attempting to fix failed symlinks...${NC}\n"
 			local fixed=0
 
 			# Try to fix each failed item by checking the failed_items string
@@ -629,8 +723,8 @@ main() {
 			attempt_fix_link ".zshrc" "${PWD}/config/zsh/.zshrc" ~/.zshrc ".zshrc"
 			attempt_fix_link ".zshenv" "${PWD}/config/zsh/.zshenv" ~/.zshenv ".zshenv"
 
-			printf "\n${GREEN}Fixed ${fixed} of ${failed} failed symlink(s)${NC}\n"
-			printf "${GREEN}Setup complete!${NC}\n"
+			say "\n${GREEN}Fixed ${fixed} of ${failed} failed symlink(s)${NC}"
+			say "${GREEN}Setup complete!${NC}"
 			exit 0
 		else
 			printf "\nTo fix manually:\n"
