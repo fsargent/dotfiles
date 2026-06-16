@@ -203,7 +203,7 @@ alias cd='z'
 # Shims automatically respect .tool-versions and mise.toml files
 # Run `mise reshim` after installing new tools
 # GitHub token: lazy-loaded from macOS keychain via github_token() in .zshenv.
-# Do not export other op:// references here — op run (used by npm-op.zsh) resolves
+# Do not export other op:// references here — op read (used by npm-op.zsh) resolves
 # every op:// env var and will fail if the vault path is wrong or inaccessible.
 #compdef gt
 ###-begin-gt-completions-###

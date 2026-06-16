@@ -13,7 +13,7 @@ Before using these dotfiles, you will need to install Homebrew. You can install 
 After installing Homebrew, you will need to install the following dependencies:
 
 ```bash
-brew install eza git-delta ripgrep starship mise autojump 1password trunk fish
+brew install eza git-delta ripgrep starship mise autojump 1password trunk
 ```
 
 ## Usage
@@ -74,7 +74,6 @@ This repository contains the following dotfiles:
      - `ghostty/`: Directory containing Ghostty configuration files and themes.
      - `kanata/`: Directory containing Kanata configuration files.
      - `zsh/`: Directory containing Zsh configuration files.
-     - `fish/`: Directory containing Fish shell configuration files.
 - `setup.sh`: Script to set up the dotfiles.
 - `starship.toml`: Configuration file for Starship.
 

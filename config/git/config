@@ -35,6 +35,7 @@ autoCorrect = immediate
 
 [core]
 	editor = hx
+	excludesfile = ~/.config/git/ignore
 
 [delta]
 # https://dandavison.github.io/delta/configuration.html

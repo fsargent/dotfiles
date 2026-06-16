@@ -33,7 +33,7 @@ idea/
 
 #vscode
 .vscode/*
-!.vscode/settings.json
+.vscode/settings.json
 .idea/
 
 # Python

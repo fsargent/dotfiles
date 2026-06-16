@@ -41,7 +41,7 @@ apply_brew_shellenv_optional() {
 }
 
 # Required Homebrew formulas (packages)
-REQUIRED_FORMULAS="eza git-delta ripgrep starship mise autojump 1password trunk fish rm-improved \
+REQUIRED_FORMULAS="eza git-delta ripgrep starship mise autojump 1password trunk rm-improved \
 bat fzf direnv zoxide antidote zsh-autosuggestions zsh-syntax-highlighting zsh-you-should-use \
 neovim helix gh withgraphite/tap/graphite"
 
@@ -65,7 +65,7 @@ command_exists() {
 find_available_shells() {
 	local shells=""
 	# Check common shell locations
-	for shell_path in /bin/zsh /bin/bash /bin/sh /opt/homebrew/bin/fish /usr/local/bin/fish /bin/fish; do
+	for shell_path in /bin/zsh /bin/bash /bin/sh; do
 		if [[ -x ${shell_path} ]]; then
 			shells="${shells} ${shell_path}"
 		fi
@@ -509,6 +509,65 @@ track_link() {
 	fi
 }
 
+# Configure Git to use the managed global ignore file explicitly.
+configure_git_global_ignore() {
+	local git_config_file="${PWD}/config/git/config"
+	local git_ignore_file="${PWD}/config/git/ignore"
+	local installed_excludesfile="${HOME}/.config/git/ignore"
+	local expected_excludesfile="${installed_excludesfile/#${HOME}/\~}"
+	local current_excludesfile=""
+
+	set +e
+	command_exists git
+	local git_status=$?
+	set -e
+	if [[ ${git_status} -ne 0 ]]; then
+		say "${RED}✗${NC} Git is not available; cannot configure global ignore"
+		return 1
+	fi
+
+	if [[ ! -f ${git_config_file} ]]; then
+		say "${RED}✗${NC} Managed Git config is not available at ${git_config_file}"
+		return 1
+	fi
+
+	if [[ ! -f ${git_ignore_file} ]]; then
+		say "${RED}✗${NC} Managed Git global ignore is not available at ${git_ignore_file}"
+		return 1
+	fi
+
+	set +e
+	current_excludesfile="$(git config --file "${git_config_file}" --get core.excludesfile 2>/dev/null)"
+	local status=$?
+	set -e
+
+	if [[ ${status} -eq 0 ]] && { [[ ${current_excludesfile} == "${expected_excludesfile}" ]] || [[ ${current_excludesfile} == "${installed_excludesfile}" ]]; }; then
+		say "${GREEN}✓${NC} Git global ignore already configured"
+		return 0
+	fi
+
+	if git config --file "${git_config_file}" core.excludesfile "${expected_excludesfile}"; then
+		say "${GREEN}✓${NC} Git global ignore configured"
+		return 0
+	fi
+
+	say "${RED}✗${NC} Failed to configure Git global ignore"
+	return 1
+}
+
+# Configure Git global ignore and record failures.
+track_git_global_ignore() {
+	set +e
+	configure_git_global_ignore
+	local status=$?
+	set -e
+
+	if [[ ${status} -ne 0 ]]; then
+		failed=$((failed + 1))
+		failed_items="${failed_items}\n  - Git global ignore"
+	fi
+}
+
 # Retry a failed link and count successful automatic fixes.
 attempt_fix_link() {
 	local failed_label="$1"
@@ -674,8 +733,8 @@ main() {
 
 	# Link configurations
 	track_link "${PWD}/config/git" ~/.config/git "Git config"
+	track_git_global_ignore
 	track_link "${PWD}/config/zsh" ~/.config/zsh "Zsh config"
-	track_link "${PWD}/config/fish" ~/.config/fish "Fish config"
 	track_link "${PWD}/config/kanata" ~/.config/kanata "Kanata config"
 	track_link "${PWD}/config/npm" ~/.config/npm "npm config"
 	track_link "${PWD}/config/nvim" ~/.config/nvim "Neovim config"
@@ -710,7 +769,6 @@ main() {
 			# Try to fix each failed item by checking the failed_items string
 			attempt_fix_link "Git config" "${PWD}/config/git" ~/.config/git "Git config"
 			attempt_fix_link "Zsh config" "${PWD}/config/zsh" ~/.config/zsh "Zsh config"
-			attempt_fix_link "Fish config" "${PWD}/config/fish" ~/.config/fish "Fish config"
 			attempt_fix_link "Kanata config" "${PWD}/config/kanata" ~/.config/kanata "Kanata config"
 			attempt_fix_link "npm config" "${PWD}/config/npm" ~/.config/npm "npm config"
 			attempt_fix_link "Neovim config" "${PWD}/config/nvim" ~/.config/nvim "Neovim config"
